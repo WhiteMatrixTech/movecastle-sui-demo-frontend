@@ -1,10 +1,20 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import * as path from "path";
+import Unfonts from "unplugin-fonts/vite";
+import svgr from "vite-plugin-svgr";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    Unfonts({
+      google: {
+        families: ["Inter"],
+      },
+    }),
+    svgr(),
+  ],
   resolve: {
     alias: [{ find: "@", replacement: path.resolve(__dirname, "src") }],
   },

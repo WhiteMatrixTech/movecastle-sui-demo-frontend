@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { CastleDetailPage, CreateCastlePage, ProfilePage } from "@/pages";
-import { AppLayout } from "@/components/AppLayout";
+import { AppLayout } from "@/components";
 
 function App() {
   return (
