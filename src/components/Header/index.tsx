@@ -1,17 +1,24 @@
 import LeftArrow from "@/assets/left-arrow.svg?react";
 import { useWallet } from "@suiet/wallet-kit";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { toast } from "react-toastify";
 import { handleUnknownTypeError } from "@/utils/common";
 import { Account } from "./Account";
 
 export function Header() {
-  const { select, allAvailableWallets, account } = useWallet();
+  const { select, allAvailableWallets, account, chain } = useWallet();
 
   const suiWallet = useMemo(
     () => allAvailableWallets.find((item) => item.name === "Sui Wallet"),
     [allAvailableWallets]
   );
+
+  useEffect(() => {
+    console.log(chain);
+    if (account?.address && chain?.id && chain?.id !== "sui:testnet") {
+      toast.error("Please switch to Sui Testnet!");
+    }
+  }, [account?.address, chain]);
 
   const handleSignIn = useCallback(async () => {
     if (!suiWallet || !suiWallet?.installed) {
