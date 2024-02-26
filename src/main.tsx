@@ -1,10 +1,18 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.tsx'
-import './index.css'
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App.tsx";
+import { WalletProvider } from "@suiet/wallet-kit";
+import { ToastContainer } from "react-toastify";
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+import "react-toastify/dist/ReactToastify.css";
+import "@suiet/wallet-kit/style.css";
+import "./index.css";
+
+ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-)
+    <WalletProvider>
+      <App />
+      <ToastContainer />
+    </WalletProvider>
+  </React.StrictMode>
+);
