@@ -13,6 +13,7 @@
   "dependencies": {
     "@mysten/sui.js": "^0.50.1",
     "@suiet/wallet-kit": "^0.2.22",
+    "classnames": "^2.5.1",
     "path": "^0.12.7",
     "react": "^18.2.0",
     "react-copy-to-clipboard": "^5.1.0",

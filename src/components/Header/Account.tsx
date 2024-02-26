@@ -10,19 +10,20 @@ export function Account() {
   const { account, disconnect } = useWallet();
   const navigate = useNavigate();
   return (
-    <div className="group cursor-pointer py-3 relative">
+    <div className="group cursor-pointer py-3 relative hover:text-[#C0CBDF] duration-200 text-white">
       <div
-        className="flex items-center gap-x-2"
+        className="flex items-center gap-x-1 sm:gap-x-2"
         onClick={() => {
           navigate("/profile");
         }}
       >
-        <img src={DefaultAvatar} className="w-12" />
-        <div>{abbrAddress(account?.address)}</div>
+        <img src={DefaultAvatar} className="w-8 sm:w-12" />
+        <span className="text-sm sm:text-base">
+          {abbrAddress(account?.address)}
+        </span>
         <svg
-          width="24"
-          height="24"
           viewBox="0 0 24 24"
+          className="shrink-0 w-4 sm:w-6"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
