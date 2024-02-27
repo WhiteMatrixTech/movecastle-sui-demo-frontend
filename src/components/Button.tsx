@@ -9,13 +9,21 @@ interface IButtonProps {
   children: ReactNode;
   loading?: boolean;
   type?: ButtonType;
+  disable?: boolean;
 }
 export function Button(props: IButtonProps) {
-  const { className, children, onClick, loading, type = "primary" } = props;
+  const {
+    className,
+    children,
+    onClick,
+    loading,
+    type = "primary",
+    disable = false,
+  } = props;
   return (
     <button
       onClick={() => {
-        if (!loading && onClick) {
+        if (!loading && onClick && !disable) {
           onClick();
         }
       }}
