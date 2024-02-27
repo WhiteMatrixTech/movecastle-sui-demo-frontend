@@ -1,6 +1,8 @@
 import { ReactNode, useRef, useState } from "react";
 import { useClickAway, useToggle } from "react-use";
 import cn from "classnames";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components";
 
 type CastleSize = "small" | "middle" | "big";
 const sizes: CastleSize[] = ["small", "middle", "big"];
@@ -11,12 +13,13 @@ export function CreateCastlePage() {
 
   const [showSizeDropDown, toggleShowSizeDropdown] = useToggle(false);
   const selectRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
   useClickAway(selectRef, () => {
     toggleShowSizeDropdown(false);
   });
 
   return (
-    <div className="pt-[10vh] sm:pt-[19vh]">
+    <div className="pt-[10vh] sm:pt-[19vh] pb-[8vh]">
       <div className="mx-auto w-[calc(100vw_-_32px)] max-w-[628px] px-4 sm:px-20 pt-6 sm:pt-12 pb-8 sm:pb-16 bg-white">
         <h1 className="text-center w-full text-[#131C28] text-lg sm:text-2xl font-semibold">
           Castle attributes
@@ -102,12 +105,18 @@ export function CreateCastlePage() {
           {/* button area */}
         </form>
         <div className="flex items-center justify-between gap-x-2 sm:gap-x-[21px] text-sm sm:text-base">
-          <button className="rounded duration-200 hover:opacity-75 w-full sm:rounded-md bg-[#DCE8F1] text-[#07253E] h-10 sm:h-12 flex items-center justify-center">
+          <Button
+            onClick={() => {
+              navigate("/profile");
+            }}
+            type="gray"
+            className="w-full h-10 sm:h-12"
+          >
             Cancel
-          </button>
-          <button className="rounded duration-200 hover:opacity-75 w-full sm:rounded-md text-white bg-[linear-gradient(to_right,#68d7ef_0%,#56b5f9_33%,#4ca2ff_100%)] h-10 sm:h-12 flex items-center justify-center">
+          </Button>
+          <Button type="primary" className="w-full h-10 sm:h-12">
             Confirm
-          </button>
+          </Button>
         </div>
       </div>
     </div>
