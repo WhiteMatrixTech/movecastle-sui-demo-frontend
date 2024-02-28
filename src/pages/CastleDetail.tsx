@@ -2,7 +2,12 @@ import { useParams } from "react-router-dom";
 import castleDefaultImg from "@/assets/castle-default.png";
 import { ReactNode, useCallback, useState } from "react";
 import cn from "classnames";
-import { BattleResultModal, Button } from "@/components";
+import {
+  BattleResultModal,
+  Button,
+  InitOrRecruitFailedModal,
+  RecruitModal,
+} from "@/components";
 import { mockPromise } from "@/utils/common";
 
 import RadialBattleSVG from "@/assets/radial-battle.svg?react";
@@ -15,19 +20,25 @@ interface IBattleResult {
 export function CastleDetailPage() {
   const { id } = useParams();
 
+  const [failedModalType, setFailedModalType] = useState<
+    "battle" | "recruit"
+  >();
+
   const [battleResult, setBattleResult] = useState<IBattleResult>();
   const [isBattling, setBattling] = useState(false);
   const handleBattle = useCallback(async () => {
     setBattling(true);
     try {
-      //TODO:
       await mockPromise(3000);
       setBattleResult({ isSuccess: true });
     } catch (e) {
       console.error(e);
+      setFailedModalType("battle");
     }
     setBattling(false);
   }, []);
+
+  const [showRecruitModal, setShowRecruitModal] = useState(false);
 
   return (
     <div className="mx-auto w-[calc(100vw_-_32px)] max-w-[862px] py-8 sm:py-16">
@@ -112,6 +123,9 @@ export function CastleDetailPage() {
           type="primary"
           className="w-full sm:w-[223px] h-12 z-10 shrink-0"
           disable={isBattling}
+          onClick={() => {
+            setShowRecruitModal(true);
+          }}
         >
           Recruit Soiliers
         </Button>
@@ -121,6 +135,21 @@ export function CastleDetailPage() {
           type={battleResult.isSuccess ? "victory" : "defeat"}
           onClose={() => {
             setBattleResult(undefined);
+          }}
+        />
+      )}
+      {failedModalType && (
+        <InitOrRecruitFailedModal
+          type={failedModalType}
+          onClose={() => {
+            setFailedModalType(undefined);
+          }}
+        />
+      )}
+      {showRecruitModal && (
+        <RecruitModal
+          onClose={() => {
+            setShowRecruitModal(false);
           }}
         />
       )}

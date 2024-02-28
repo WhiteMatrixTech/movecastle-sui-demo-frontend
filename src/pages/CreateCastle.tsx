@@ -3,7 +3,7 @@ import { useAsyncFn, useClickAway, useToggle } from "react-use";
 import cn from "classnames";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components";
-
+import fireworkImg from "@/assets/fireworks.png";
 import castleDefaultImg from "@/assets/castle-default.png";
 import { mockPromise } from "@/utils/common";
 import { toast } from "react-toastify";
@@ -41,6 +41,11 @@ export function CreateCastlePage() {
         {isCreateSuccess ? (
           <div className="flex flex-col gap-y-4 items-center">
             <h1 className="text-[#131C28] text-lg sm:text-2xl font-semibold">
+              <img
+                src={fireworkImg}
+                alt="fireworks"
+                className="w-[18px] sm:w-6 inline-block mr-1 mb-1"
+              />
               Successfully Built!
             </h1>
             <img src={castleDefaultImg} alt="castle default" width={180} />

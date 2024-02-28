@@ -49,7 +49,7 @@ export function Header() {
   }, [select, suiWallet]);
 
   return (
-    <header className="sticky bg-[#001731] top-0 inset-x-0 h-16 sm:h-[72px] px-4 sm:px-[4.16vw] flex items-center justify-between">
+    <header className="sticky bg-[#001731] top-0 z-50 inset-x-0 h-16 sm:h-[72px] px-4 sm:px-[4.16vw] flex items-center justify-between">
       {/* left */}
       <a
         href="https://edu-develop-b702b03e93.chainide.com/courses/105/"
