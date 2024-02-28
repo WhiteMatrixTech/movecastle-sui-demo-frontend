@@ -1,6 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useParams } from "react-router-dom";
-import castleDefaultImg from "@/assets/castle-default.png";
-import { ReactNode, useCallback, useState } from "react";
+import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import cn from "classnames";
 import {
   BattleResultModal,
@@ -9,11 +9,14 @@ import {
   RecruitModal,
 } from "@/components";
 import { mockPromise } from "@/utils/common";
-
 import RadialBattleSVG from "@/assets/radial-battle.svg?react";
 import RadialRecruitSVG from "@/assets/radial-recruit.svg?react";
 import { useWallet } from "@suiet/wallet-kit";
 import { toast } from "react-toastify";
+import { SuiObjectData } from "@mysten/sui.js/client";
+import { suiClient } from "@/utils/suiClient";
+import { GAME_STORE_OBJECT_ID } from "@/utils/const";
+import { get } from "lodash";
 
 interface IBattleResult {
   isSuccess: boolean;
@@ -22,6 +25,56 @@ interface IBattleResult {
 export function CastleDetailPage() {
   const { id } = useParams();
   const { account } = useWallet();
+  const [suiObj, setSuiObj] = useState<SuiObjectData | null | undefined>();
+  const [gameObj, setGameObj] = useState<SuiObjectData | null | undefined>();
+  const [dynamicFieldsObj, setDynamicFieldsObj] = useState<
+    SuiObjectData | undefined | null
+  >();
+  useEffect(() => {
+    if (!id) return;
+    suiClient
+      .getObject({
+        id,
+        options: {
+          showContent: true,
+          showDisplay: true,
+          showOwner: true,
+          showType: true,
+        },
+      })
+      .then((v) => {
+        setSuiObj(v?.data);
+      })
+      .catch(console.error);
+
+    suiClient
+      .getObject({
+        id: GAME_STORE_OBJECT_ID,
+        options: {
+          showContent: true,
+          showDisplay: true,
+          showOwner: true,
+          showType: true,
+        },
+      })
+      .then((v) => {
+        setGameObj(v?.data);
+      })
+      .catch(console.error);
+
+    suiClient
+      .getDynamicFieldObject({
+        parentId: GAME_STORE_OBJECT_ID,
+        name: {
+          type: "0x2::object::ID",
+          value: id,
+        },
+      })
+      .then((v) => {
+        setDynamicFieldsObj(v?.data);
+      })
+      .catch(console.error);
+  }, [id]);
 
   const [failedModalType, setFailedModalType] = useState<
     "battle" | "recruit"
@@ -47,33 +100,56 @@ export function CastleDetailPage() {
 
   const [showRecruitModal, setShowRecruitModal] = useState(false);
 
+  console.log(dynamicFieldsObj, gameObj, suiObj);
+
+  const castleImg = useMemo(
+    () => get(suiObj, "display.data.image_url"),
+    [suiObj]
+  );
+  const soldiersBonus = useMemo(() => {
+    const buff = get(
+      dynamicFieldsObj,
+      "content.fields.value.fields.economy.fields.soldier_buff.fields"
+    ) as unknown as { debuff: boolean; power: string };
+    if (buff) {
+      return `${buff.debuff ? "+" : "-"}${buff.power}%`;
+    }
+  }, [dynamicFieldsObj]);
+
   return (
     <div className="mx-auto w-[calc(100vw_-_32px)] max-w-[862px] py-8 sm:py-16">
       <div className="grid grid-cols-1 sm:grid-cols-2 mb-4">
         <div className="bg-[#f8f9fb] w-full p-6 flex flex-col justify-between">
           <img
-            src={castleDefaultImg}
+            src={castleImg}
             alt="castle default img"
-            className="w-[49%] mx-auto"
+            className={cn(
+              "w-[49%] mx-auto aspect-[0.64]",
+              castleImg ? "opacity-100" : "opacity-0"
+            )}
           />
           <h2 className="mb-4 mt-12 text-[#07253E] font-bold text-lg">
-            Castle {id}
+            {get(suiObj, "display.data.name")}
           </h2>
           <p className="text-[#4D5D69] text-sm sm:text-[17px] break-all sm:leading-[30px] mb-1">
-            0x04aca8bad5343259cf5ebb944f440946bf8d8dd203d4c541b4032adf9e2ec147
+            {suiObj?.objectId}
           </p>
         </div>
         <AttrCard
           title="Basic Attributes"
           data={{
-            Name: "Project 09865428",
-            "Serial Number": "989897979797979",
-            Size: 100,
-            Race: "Random",
-            Experience: "Random",
-            Level: "High",
-            Description:
-              "Situated majestically atop the rolling hills of the Sui blockchain, the Castle of Ethereal Fortitude stands as a beacon of digital craftsmanship. ",
+            Name: get(suiObj, "display.data.name"),
+            "Serial Number": get(suiObj, "content.fields.serial_number"),
+            Size: get(dynamicFieldsObj, "content.fields.value.fields.size"),
+            //TODO: 要做映射
+            // Race: get(dynamicFieldsObj, "content.fields.value.fields.race"),
+            Race: "TODO",
+            Experience: get(
+              dynamicFieldsObj,
+              "content.fields.value.fields.experience_pool"
+            ),
+            Level: get(dynamicFieldsObj, "content.fields.value.fields.level"),
+            Description: get(suiObj, "display.data.description"),
           }}
         />
       </div>
@@ -81,20 +157,35 @@ export function CastleDetailPage() {
         <AttrCard
           title="Economic Attributes"
           data={{
-            Treasury: 10000,
-            "Base Economic Power": 1000,
-            "Bonus From Soldiers": "10%",
+            Treasury: get(
+              dynamicFieldsObj,
+              "content.fields.value.fields.economy.fields.treasury"
+            ),
+            "Base Economic Power": get(
+              dynamicFieldsObj,
+              "content.fields.value.fields.economy.fields.base_power"
+            ),
+            "Bonus From Soldiers": soldiersBonus,
             "Battle Reparations": "TODO",
-            "Total Economic Power": 1000,
+            "Total Economic Power": "TODO",
           }}
         />
         <AttrCard
           title="Military Attributes"
           data={{
-            "Base Attack Power": 1000,
-            Soldiers: 30,
-            "Total Attack Power": 100,
-            "Battle Cooldown": "Until 5 Minutes Later",
+            "Attack Power": get(
+              dynamicFieldsObj,
+              "content.fields.value.fields.millitary.fields.attack_power"
+            ),
+            Soldiers: get(
+              dynamicFieldsObj,
+              "content.fields.value.fields.millitary.fields.soldiers"
+            ),
+            "Defence Power": get(
+              dynamicFieldsObj,
+              "content.fields.value.fields.millitary.fields.defence_power"
+            ),
+            "Battle Cooldown": "TODO",
           }}
         />
       </div>

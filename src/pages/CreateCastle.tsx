@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ReactNode, useRef, useState } from "react";
 import { useAsyncFn, useClickAway, useToggle } from "react-use";
 import cn from "classnames";
@@ -5,15 +6,17 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components";
 import fireworkImg from "@/assets/fireworks.png";
 import castleDefaultImg from "@/assets/castle-default.png";
-import { mockPromise } from "@/utils/common";
 import { toast } from "react-toastify";
 import { useWallet } from "@suiet/wallet-kit";
+import { TransactionBlock } from "@mysten/sui.js/transactions";
+import { GAME_STORE_OBJECT_ID, PACKAGE_OBJECT_ID } from "@/utils/const";
+import { suiClient } from "@/utils/suiClient";
 
 type CastleSize = "small" | "middle" | "big";
 const sizes: CastleSize[] = ["small", "middle", "big"];
 export function CreateCastlePage() {
-  const { account } = useWallet();
-  const [isCreateSuccess, setCreateSuccess] = useState(false);
+  const { account, signAndExecuteTransactionBlock } = useWallet();
+  const [createdObjectId, setCreatedObjectId] = useState<string>();
 
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
@@ -31,18 +34,42 @@ export function CreateCastlePage() {
       toast.error("Please sign in!");
       return;
     }
-    if (name && desc) {
-      await mockPromise(3000);
-      setCreateSuccess(true);
-    } else {
+    if (!name || !desc) {
       toast.error("Please input");
+      return;
     }
+    const txb = new TransactionBlock();
+    const args = [
+      txb.pure(size === "big" ? 3 : size === "middle" ? 2 : 1),
+      txb.pure(name),
+      txb.pure(desc),
+      txb.pure("0x6"),
+      txb.pure(GAME_STORE_OBJECT_ID),
+    ];
+    txb.moveCall({
+      target: `${PACKAGE_OBJECT_ID}::castle::build_castle`,
+      arguments: args,
+    });
+    const exeRes = await signAndExecuteTransactionBlock({
+      transactionBlock: txb as any,
+    });
+    const waitRes = await suiClient.waitForTransactionBlock({
+      digest: exeRes.digest,
+      options: { showObjectChanges: true },
+    });
+    const createdObj = waitRes?.objectChanges?.find(
+      (item) =>
+        item.type === "created" &&
+        item.objectType === `${PACKAGE_OBJECT_ID}::castle::Castle`
+    );
+    const objId = (createdObj as any)?.objectId;
+    objId && setCreatedObjectId(objId);
   }, [name, desc, account?.address]);
 
   return (
     <div className="pt-[10vh] sm:pt-[19vh] pb-[8vh]">
       <div className="mx-auto w-[calc(100vw_-_32px)] max-w-[628px] px-4 sm:px-20 pt-6 sm:pt-12 pb-8 sm:pb-16 bg-white">
-        {isCreateSuccess ? (
+        {createdObjectId ? (
           <div className="flex flex-col gap-y-4 items-center">
             <h1 className="text-[#131C28] text-lg sm:text-2xl font-semibold">
               <img
@@ -56,7 +83,7 @@ export function CreateCastlePage() {
             <div className="text-lg sm:text-2xl text-[#3592F7] font-bold">
               {name}
             </div>
-            <Link to="/castles/1">
+            <Link to={`/castles/${createdObjectId}`}>
               <Button type="primary" className="h-10 sm:h-12 w-[223px]">
                 Explore
               </Button>

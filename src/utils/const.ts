@@ -1,0 +1,4 @@
+export const PACKAGE_OBJECT_ID =
+  "0x2b6752cace067f7cb9e9ad5f092da1b96fd92c602f6acffb0bd88db3c6ebc323";
+export const GAME_STORE_OBJECT_ID =
+  "0x4f800949cc20cb013c8fbec9ec7cbb65c8711ce05c40a8df714f019484784807";

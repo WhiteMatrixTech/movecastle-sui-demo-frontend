@@ -1,22 +1,39 @@
-import castleDefaultImg from "@/assets/castle-default.png";
 import { Button } from "@/components";
 import { Link, useNavigate } from "react-router-dom";
 import PlusSVG from "@/assets/plus.svg?react";
 import { useWallet } from "@suiet/wallet-kit";
+import { useEffect, useState } from "react";
+import { suiClient } from "@/utils/suiClient";
+import { SuiObjectResponse } from "@mysten/sui.js/client";
+import { PACKAGE_OBJECT_ID } from "@/utils/const";
+import { get } from "lodash";
+import cn from "classnames";
 
 export function ProfilePage() {
   const navigate = useNavigate();
   const { account } = useWallet();
-  const mockCastles = account?.address
-    ? [
-        { id: 1, name: "Castle name1" },
-        { id: 2, name: "Castle name2" },
-        { id: 3, name: "Castle name3" },
-        { id: 4, name: "Castle name4" },
-        { id: 5, name: "Castle name5" },
-        { id: 6, name: "Castle name6" },
-      ]
-    : [];
+  const [ownCastleObjs, setOwnCastleObjs] = useState<SuiObjectResponse[]>([]);
+
+  useEffect(() => {
+    if (!account?.address) return;
+    suiClient
+      .getOwnedObjects({
+        owner: account.address,
+        options: {
+          showContent: true,
+        },
+      })
+      .then((v) => {
+        setOwnCastleObjs(
+          v.data?.filter(
+            (item) =>
+              get(item, "data.content.type") ===
+              `${PACKAGE_OBJECT_ID}::castle::Castle`
+          )
+        );
+      })
+      .catch(console.error);
+  }, [account?.address]);
 
   return (
     <div className="mx-auto px-4 sm:px-[5.83%] pt-8 pb-4 sm:pt-16 sm:pb-8">
@@ -34,20 +51,29 @@ export function ProfilePage() {
           <span className=" font-medium text-xl">Create New Castle</span>
         </li>
 
-        {mockCastles.map((castle) => (
-          <li
-            key={castle.id}
-            className="w-full flex-col mx-auto sm:mx-0 max-w-[320px] sm:w-[320px] aspect-square flex items-center justify-center bg-white"
-          >
-            <img src={castleDefaultImg} width="38%" alt="castle default" />
-            <span className="mt-3 mb-[30px] font-bold">{castle.name}</span>
-            <Link to={`/castles/${castle.id}`} className="w-full">
-              <Button type="primary" className="h-10 sm:h-12 w-[70%] mx-auto">
-                Explore
-              </Button>
-            </Link>
-          </li>
-        ))}
+        {ownCastleObjs.map((castle, index) => {
+          const imgId = `${get(castle, "data.content.fields.image_id")}`;
+          return (
+            <li
+              key={index}
+              className="w-full flex-col mx-auto sm:mx-0 max-w-[320px] sm:w-[320px] aspect-square flex items-center justify-center bg-white"
+            >
+              <img
+                src={`https://movecastle.info/static/media/castles/${imgId}.png`}
+                className={cn("w-[38%] aspect-[0.64]")}
+                alt="castle default"
+              />
+              <span className="mt-3 mb-[30px] font-bold">
+                {get(castle, "data.content.fields.name")}
+              </span>
+              <Link to={`/castles/${castle.data?.objectId}`} className="w-full">
+                <Button type="primary" className="h-10 sm:h-12 w-[70%] mx-auto">
+                  Explore
+                </Button>
+              </Link>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

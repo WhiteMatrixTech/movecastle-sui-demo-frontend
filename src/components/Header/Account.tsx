@@ -2,7 +2,7 @@ import { abbrAddress } from "@/utils/common";
 import { useWallet } from "@suiet/wallet-kit";
 import CopySVG from "@/assets/copy.svg?react";
 import DefaultAvatar from "@/assets/default_avatar.png";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 
@@ -10,15 +10,9 @@ import RightArrowSVG from "@/assets/right-arrow.svg?react";
 
 export function Account() {
   const { account, disconnect } = useWallet();
-  const navigate = useNavigate();
   return (
     <div className="group cursor-pointer py-3 relative hover:text-[#C0CBDF] duration-200 text-white">
-      <div
-        className="flex items-center gap-x-1 sm:gap-x-2"
-        onClick={() => {
-          navigate("/profile");
-        }}
-      >
+      <div className="flex items-center gap-x-1 sm:gap-x-2">
         <img src={DefaultAvatar} className="w-8 sm:w-12" />
         <span className="text-sm sm:text-base">
           {abbrAddress(account?.address)}
