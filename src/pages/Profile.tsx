@@ -2,24 +2,22 @@ import castleDefaultImg from "@/assets/castle-default.png";
 import { Button } from "@/components";
 import { Link, useNavigate } from "react-router-dom";
 import PlusSVG from "@/assets/plus.svg?react";
-import { useEffect } from "react";
 import { useWallet } from "@suiet/wallet-kit";
-const mockCastles = [
-  { id: 1, name: "Castle name1" },
-  { id: 2, name: "Castle name2" },
-  { id: 3, name: "Castle name3" },
-  { id: 4, name: "Castle name4" },
-  { id: 5, name: "Castle name5" },
-  { id: 6, name: "Castle name6" },
-];
+
 export function ProfilePage() {
   const navigate = useNavigate();
   const { account } = useWallet();
-  useEffect(() => {
-    if (!account?.address) {
-      navigate("/create-castle");
-    }
-  }, [account?.address, navigate]);
+  const mockCastles = account?.address
+    ? [
+        { id: 1, name: "Castle name1" },
+        { id: 2, name: "Castle name2" },
+        { id: 3, name: "Castle name3" },
+        { id: 4, name: "Castle name4" },
+        { id: 5, name: "Castle name5" },
+        { id: 6, name: "Castle name6" },
+      ]
+    : [];
+
   return (
     <div className="mx-auto px-4 sm:px-[5.83%] pt-8 pb-4 sm:pt-16 sm:pb-8">
       <h1 className="text-lg sm:text-2xl font-semibold text-[#07253E] capitalize">

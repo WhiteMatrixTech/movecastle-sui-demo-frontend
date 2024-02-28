@@ -27,13 +27,17 @@ export function CreateCastlePage() {
   });
 
   const [createCastleResult, doCreateCastle] = useAsyncFn(async () => {
+    if (!account?.address) {
+      toast.error("Please sign in!");
+      return;
+    }
     if (name && desc) {
       await mockPromise(3000);
       setCreateSuccess(true);
     } else {
       toast.error("Please input");
     }
-  }, [name, desc]);
+  }, [name, desc, account?.address]);
 
   return (
     <div className="pt-[10vh] sm:pt-[19vh] pb-[8vh]">

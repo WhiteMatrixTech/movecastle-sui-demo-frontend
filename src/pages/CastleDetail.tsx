@@ -12,6 +12,8 @@ import { mockPromise } from "@/utils/common";
 
 import RadialBattleSVG from "@/assets/radial-battle.svg?react";
 import RadialRecruitSVG from "@/assets/radial-recruit.svg?react";
+import { useWallet } from "@suiet/wallet-kit";
+import { toast } from "react-toastify";
 
 interface IBattleResult {
   isSuccess: boolean;
@@ -19,6 +21,7 @@ interface IBattleResult {
 
 export function CastleDetailPage() {
   const { id } = useParams();
+  const { account } = useWallet();
 
   const [failedModalType, setFailedModalType] = useState<
     "battle" | "recruit"
@@ -27,6 +30,10 @@ export function CastleDetailPage() {
   const [battleResult, setBattleResult] = useState<IBattleResult>();
   const [isBattling, setBattling] = useState(false);
   const handleBattle = useCallback(async () => {
+    if (!account?.address) {
+      toast.error("Please sign in!");
+      return;
+    }
     setBattling(true);
     try {
       await mockPromise(3000);
@@ -36,7 +43,7 @@ export function CastleDetailPage() {
       setFailedModalType("battle");
     }
     setBattling(false);
-  }, []);
+  }, [account?.address]);
 
   const [showRecruitModal, setShowRecruitModal] = useState(false);
 
@@ -124,6 +131,10 @@ export function CastleDetailPage() {
           className="w-full sm:w-[223px] h-12 z-10 shrink-0"
           disable={isBattling}
           onClick={() => {
+            if (!account?.address) {
+              toast.error("Please sign in!");
+              return;
+            }
             setShowRecruitModal(true);
           }}
         >

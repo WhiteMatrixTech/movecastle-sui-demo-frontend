@@ -7,6 +7,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<AppLayout />}>
+          <Route path="/" element={<ProfilePage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/create-castle" element={<CreateCastlePage />} />
           <Route path="/castles/:id" element={<CastleDetailPage />} />

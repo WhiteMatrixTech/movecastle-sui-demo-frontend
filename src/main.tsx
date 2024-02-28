@@ -13,7 +13,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <WalletProvider>
       <App />
-      <ToastContainer />
+      <ToastContainer position="bottom-right" />
     </WalletProvider>
   </React.StrictMode>
 );
