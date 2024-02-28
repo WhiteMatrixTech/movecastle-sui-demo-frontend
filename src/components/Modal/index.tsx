@@ -1,0 +1,1 @@
+export { BattleResultModal } from "./BattleResultModal";

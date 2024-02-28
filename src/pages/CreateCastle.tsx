@@ -1,16 +1,18 @@
 import { ReactNode, useRef, useState } from "react";
 import { useAsyncFn, useClickAway, useToggle } from "react-use";
 import cn from "classnames";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components";
 
 import castleDefaultImg from "@/assets/castle-default.png";
 import { mockPromise } from "@/utils/common";
 import { toast } from "react-toastify";
+import { useWallet } from "@suiet/wallet-kit";
 
 type CastleSize = "small" | "middle" | "big";
 const sizes: CastleSize[] = ["small", "middle", "big"];
 export function CreateCastlePage() {
+  const { account } = useWallet();
   const [isCreateSuccess, setCreateSuccess] = useState(false);
 
   const [name, setName] = useState("");
@@ -45,9 +47,11 @@ export function CreateCastlePage() {
             <div className="text-lg sm:text-2xl text-[#3592F7] font-bold">
               {name}
             </div>
-            <Button type="primary" className="h-10 sm:h-12 w-[223px]">
-              Explore
-            </Button>
+            <Link to="/castles/1">
+              <Button type="primary" className="h-10 sm:h-12 w-[223px]">
+                Explore
+              </Button>
+            </Link>
           </div>
         ) : (
           <div>
@@ -137,7 +141,9 @@ export function CreateCastlePage() {
             <div className="flex items-center justify-between gap-x-2 sm:gap-x-[21px] text-sm sm:text-base">
               <Button
                 onClick={() => {
-                  navigate("/profile");
+                  if (account?.address) {
+                    navigate("/profile");
+                  }
                 }}
                 type="gray"
                 className="w-full h-10 sm:h-12"
