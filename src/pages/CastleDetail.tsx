@@ -17,6 +17,10 @@ import { SuiObjectData } from "@mysten/sui.js/client";
 import { suiClient } from "@/utils/suiClient";
 import { GAME_STORE_OBJECT_ID } from "@/utils/const";
 import { get } from "lodash";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+
+dayjs.extend(relativeTime);
 
 interface IBattleResult {
   isSuccess: boolean;
@@ -30,7 +34,8 @@ export function CastleDetailPage() {
   const [dynamicFieldsObj, setDynamicFieldsObj] = useState<
     SuiObjectData | undefined | null
   >();
-  useEffect(() => {
+
+  const fetchSuiObj = useCallback(() => {
     if (!id) return;
     suiClient
       .getObject({
@@ -46,7 +51,10 @@ export function CastleDetailPage() {
         setSuiObj(v?.data);
       })
       .catch(console.error);
+  }, [id]);
 
+  const fetchGameObj = useCallback(() => {
+    if (!id) return;
     suiClient
       .getObject({
         id: GAME_STORE_OBJECT_ID,
@@ -61,7 +69,10 @@ export function CastleDetailPage() {
         setGameObj(v?.data);
       })
       .catch(console.error);
+  }, [id]);
 
+  const fetchDynamicFieldObject = useCallback(() => {
+    if (!id) return;
     suiClient
       .getDynamicFieldObject({
         parentId: GAME_STORE_OBJECT_ID,
@@ -75,6 +86,12 @@ export function CastleDetailPage() {
       })
       .catch(console.error);
   }, [id]);
+
+  useEffect(() => {
+    fetchSuiObj();
+    fetchGameObj();
+    fetchDynamicFieldObject();
+  }, [fetchDynamicFieldObject, fetchGameObj, fetchSuiObj, id]);
 
   const [failedModalType, setFailedModalType] = useState<
     "battle" | "recruit"
@@ -113,6 +130,19 @@ export function CastleDetailPage() {
     ) as unknown as { debuff: boolean; power: string };
     if (buff) {
       return `${buff.debuff ? "+" : "-"}${buff.power}%`;
+    }
+  }, [dynamicFieldsObj]);
+  const battleCooldown = useMemo(() => {
+    const cooldown = get(
+      dynamicFieldsObj,
+      "content.fields.value.fields.millitary.fields.battle_cooldown"
+    );
+    if (cooldown) {
+      const before = Number(cooldown);
+      if (Date.now() > before) {
+        return "None";
+      }
+      return dayjs().to(new Date(Number(cooldown)));
     }
   }, [dynamicFieldsObj]);
 
@@ -173,19 +203,19 @@ export function CastleDetailPage() {
         <AttrCard
           title="Military Attributes"
           data={{
-            "Attack Power": get(
+            "Base Attack Power / Defence Power": `${get(
               dynamicFieldsObj,
               "content.fields.value.fields.millitary.fields.attack_power"
-            ),
+            )} / ${get(
+              dynamicFieldsObj,
+              "content.fields.value.fields.millitary.fields.defence_power"
+            )}`,
             Soldiers: get(
               dynamicFieldsObj,
               "content.fields.value.fields.millitary.fields.soldiers"
             ),
-            "Defence Power": get(
-              dynamicFieldsObj,
-              "content.fields.value.fields.millitary.fields.defence_power"
-            ),
-            "Battle Cooldown": "TODO",
+            "Total Attack Power / Defence Power": "TODO",
+            "Battle Cooldown": battleCooldown,
           }}
         />
       </div>
@@ -277,7 +307,7 @@ function AttrCard(props: IAttrCardProps) {
             <li
               key={key}
               className={cn(
-                "flex flex-wrap items-center gap-[10px] justify-between p-[11px]",
+                "flex flex-wrap items-center gap-[10px] justify-between px-0 py-[11px] sm:p-[11px]",
                 !isLast && "border-b-[1px] border-solid border-b-[#d4dce5]"
               )}
             >
