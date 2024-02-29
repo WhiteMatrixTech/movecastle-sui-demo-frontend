@@ -1,26 +1,24 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useParams } from "react-router-dom";
-import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import cn from "classnames";
 import {
+  ActionButtonLayout,
+  BasicAttr,
   BattleResultModal,
   Button,
+  EconomicAttr,
   InitOrRecruitFailedModal,
+  MilitaryAttr,
   RecruitModal,
 } from "@/components";
-import { mockPromise } from "@/utils/common";
-import RadialBattleSVG from "@/assets/radial-battle.svg?react";
-import RadialRecruitSVG from "@/assets/radial-recruit.svg?react";
 import { useWallet } from "@suiet/wallet-kit";
 import { toast } from "react-toastify";
 import { SuiObjectData } from "@mysten/sui.js/client";
 import { suiClient } from "@/utils/suiClient";
-import { GAME_STORE_OBJECT_ID } from "@/utils/const";
+import { GAME_STORE_OBJECT_ID, PACKAGE_OBJECT_ID } from "@/utils/const";
 import { get } from "lodash";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-
-dayjs.extend(relativeTime);
+import { TransactionBlock } from "@mysten/sui.js/transactions";
 
 interface IBattleResult {
   isSuccess: boolean;
@@ -28,7 +26,8 @@ interface IBattleResult {
 
 export function CastleDetailPage() {
   const { id } = useParams();
-  const { account } = useWallet();
+  const { account, signAndExecuteTransactionBlock } = useWallet();
+
   const [suiObj, setSuiObj] = useState<SuiObjectData | null | undefined>();
   const [gameObj, setGameObj] = useState<SuiObjectData | null | undefined>();
   const [dynamicFieldsObj, setDynamicFieldsObj] = useState<
@@ -104,16 +103,56 @@ export function CastleDetailPage() {
       toast.error("Please sign in!");
       return;
     }
+    // check is in cooldown
+    const cooldown = get(
+      dynamicFieldsObj,
+      "content.fields.value.fields.millitary.fields.battle_cooldown"
+    );
+    if (cooldown) {
+      const before = Number(cooldown);
+      if (Date.now() <= before) {
+        toast.error("Cooling down, please try again later!");
+        return;
+      }
+    }
     setBattling(true);
     try {
-      await mockPromise(3000);
+      const txb = new TransactionBlock();
+      const args = [
+        txb.pure(id),
+        txb.pure("0x6"),
+        txb.pure(GAME_STORE_OBJECT_ID),
+      ];
+      txb.moveCall({
+        target: `${PACKAGE_OBJECT_ID}::battle::battle`,
+        arguments: args,
+      });
+      const exeRes = await signAndExecuteTransactionBlock({
+        transactionBlock: txb as any,
+      });
+      const waitRes = await suiClient.waitForTransactionBlock({
+        digest: exeRes.digest,
+        options: { showObjectChanges: true },
+      });
+      console.log(waitRes);
+      fetchDynamicFieldObject();
+      fetchSuiObj();
+      fetchGameObj();
       setBattleResult({ isSuccess: true });
     } catch (e) {
       console.error(e);
-      setFailedModalType("battle");
+      // setFailedModalType("battle");
     }
     setBattling(false);
-  }, [account?.address]);
+  }, [
+    account?.address,
+    dynamicFieldsObj,
+    fetchDynamicFieldObject,
+    fetchGameObj,
+    fetchSuiObj,
+    id,
+    signAndExecuteTransactionBlock,
+  ]);
 
   const [showRecruitModal, setShowRecruitModal] = useState(false);
 
@@ -123,28 +162,6 @@ export function CastleDetailPage() {
     () => get(suiObj, "display.data.image_url"),
     [suiObj]
   );
-  const soldiersBonus = useMemo(() => {
-    const buff = get(
-      dynamicFieldsObj,
-      "content.fields.value.fields.economy.fields.soldier_buff.fields"
-    ) as unknown as { debuff: boolean; power: string };
-    if (buff) {
-      return `${buff.debuff ? "+" : "-"}${buff.power}%`;
-    }
-  }, [dynamicFieldsObj]);
-  const battleCooldown = useMemo(() => {
-    const cooldown = get(
-      dynamicFieldsObj,
-      "content.fields.value.fields.millitary.fields.battle_cooldown"
-    );
-    if (cooldown) {
-      const before = Number(cooldown);
-      if (Date.now() > before) {
-        return "None";
-      }
-      return dayjs().to(new Date(Number(cooldown)));
-    }
-  }, [dynamicFieldsObj]);
 
   return (
     <div className="mx-auto w-[calc(100vw_-_32px)] max-w-[862px] py-8 sm:py-16">
@@ -165,68 +182,13 @@ export function CastleDetailPage() {
             {suiObj?.objectId}
           </p>
         </div>
-        <AttrCard
-          title="Basic Attributes"
-          data={{
-            Name: get(suiObj, "display.data.name"),
-            "Serial Number": get(suiObj, "content.fields.serial_number"),
-            Size: get(dynamicFieldsObj, "content.fields.value.fields.size"),
-            //TODO: 要做映射
-            // Race: get(dynamicFieldsObj, "content.fields.value.fields.race"),
-            Race: "TODO",
-            Experience: get(
-              dynamicFieldsObj,
-              "content.fields.value.fields.experience_pool"
-            ),
-            Level: get(dynamicFieldsObj, "content.fields.value.fields.level"),
-            Description: get(suiObj, "display.data.description"),
-          }}
-        />
+        <BasicAttr suiObj={suiObj} dynamicFieldsObj={dynamicFieldsObj} />
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <AttrCard
-          title="Economic Attributes"
-          data={{
-            Treasury: get(
-              dynamicFieldsObj,
-              "content.fields.value.fields.economy.fields.treasury"
-            ),
-            "Base Economic Power": get(
-              dynamicFieldsObj,
-              "content.fields.value.fields.economy.fields.base_power"
-            ),
-            "Bonus From Soldiers": soldiersBonus,
-            "Battle Reparations": "TODO",
-            "Total Economic Power": "TODO",
-          }}
-        />
-        <AttrCard
-          title="Military Attributes"
-          data={{
-            "Base Attack Power / Defence Power": `${get(
-              dynamicFieldsObj,
-              "content.fields.value.fields.millitary.fields.attack_power"
-            )} / ${get(
-              dynamicFieldsObj,
-              "content.fields.value.fields.millitary.fields.defence_power"
-            )}`,
-            Soldiers: get(
-              dynamicFieldsObj,
-              "content.fields.value.fields.millitary.fields.soldiers"
-            ),
-            "Total Attack Power / Defence Power": "TODO",
-            "Battle Cooldown": battleCooldown,
-          }}
-        />
+        <EconomicAttr dynamicFieldsObj={dynamicFieldsObj} />
+        <MilitaryAttr dynamicFieldsObj={dynamicFieldsObj} />
       </div>
-      <div className="w-full overflow-hidden bg-white my-4 px-[4.18%] py-3 sm:py-5 relative flex flex-wrap gap-4 items-center justify-between">
-        <RadialBattleSVG className="absolute inset-0" />
-        <div className="z-10">
-          <h3 className="font-bold text-[#2170C3] my-1">Engage in Conflicts</h3>
-          <p className="text-[#686B6F] text-sm">
-            Initiate a battle between castles.
-          </p>
-        </div>
+      <ActionButtonLayout type="engage" className="my-4">
         <Button
           type="primary"
           className="w-full sm:w-[223px] h-12 z-10"
@@ -235,22 +197,11 @@ export function CastleDetailPage() {
         >
           Start Battle
         </Button>
-      </div>
-      <div className="w-full overflow-hidden bg-white px-[4.18%] py-3 sm:py-5 relative flex flex-wrap sm:flex-nowrap gap-4 items-center justify-between">
-        <RadialRecruitSVG className="absolute inset-0" />
-        <div className="z-10">
-          <h3 className="font-bold text-[#2170C3] my-1">
-            Enlist Reinforcements
-          </h3>
-          <p className="text-[#686B6F] text-sm">
-            Increase your castle's military power and get extra-economic power
-            by recruiting soldiers.
-          </p>
-        </div>
+      </ActionButtonLayout>
+      <ActionButtonLayout type="enlist">
         <Button
           type="primary"
           className="w-full sm:w-[223px] h-12 z-10 shrink-0"
-          disable={isBattling}
           onClick={() => {
             if (!account?.address) {
               toast.error("Please sign in!");
@@ -261,7 +212,7 @@ export function CastleDetailPage() {
         >
           Recruit Soiliers
         </Button>
-      </div>
+      </ActionButtonLayout>
       {battleResult && (
         <BattleResultModal
           type={battleResult.isSuccess ? "victory" : "defeat"}
@@ -285,38 +236,6 @@ export function CastleDetailPage() {
           }}
         />
       )}
-    </div>
-  );
-}
-
-interface IAttrCardProps {
-  className?: string;
-  title: string;
-  data: Record<string, ReactNode>;
-}
-function AttrCard(props: IAttrCardProps) {
-  const { className, title, data } = props;
-  return (
-    <div className={cn(className, "bg-[#fff] w-full p-6")}>
-      <h3 className="text-[#07253E] text-base font-bold">{title}</h3>
-      <ul className="mt-4">
-        {Object.keys(data).map((key, index) => {
-          const element = data[key];
-          const isLast = index === Object.keys(data).length - 1;
-          return (
-            <li
-              key={key}
-              className={cn(
-                "flex flex-wrap items-center gap-[10px] justify-between px-0 py-[11px] sm:p-[11px]",
-                !isLast && "border-b-[1px] border-solid border-b-[#d4dce5]"
-              )}
-            >
-              <span className="text-[#686B6F] text-sm">{key}</span>
-              <div className="text-sm text-[#07253E]">{element}</div>
-            </li>
-          );
-        })}
-      </ul>
     </div>
   );
 }
