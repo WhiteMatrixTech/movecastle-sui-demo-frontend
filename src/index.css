@@ -4,3 +4,11 @@
 html {
   font-family: "Inter";
 }
+.CircularProgressbar-text {
+  font-size: 30px !important;
+  fill: #52a6ff !important;
+  font-weight: 700 !important;
+}
+.CircularProgressbar-path {
+  stroke: #52a6ff !important;
+}

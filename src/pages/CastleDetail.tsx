@@ -8,7 +8,7 @@ import {
   BattleResultModal,
   Button,
   EconomicAttr,
-  InitOrRecruitFailedModal,
+  // InitOrRecruitFailedModal,
   MilitaryAttr,
   RecruitModal,
 } from "@/components";
@@ -19,6 +19,7 @@ import { suiClient } from "@/utils/suiClient";
 import { GAME_STORE_OBJECT_ID, PACKAGE_OBJECT_ID } from "@/utils/const";
 import { get } from "lodash";
 import { TransactionBlock } from "@mysten/sui.js/transactions";
+import { getErrorDisplayText } from "@/utils/common";
 
 interface IBattleResult {
   isSuccess: boolean;
@@ -92,9 +93,9 @@ export function CastleDetailPage() {
     fetchDynamicFieldObject();
   }, [fetchDynamicFieldObject, fetchGameObj, fetchSuiObj, id]);
 
-  const [failedModalType, setFailedModalType] = useState<
-    "battle" | "recruit"
-  >();
+  // const [failedModalType, setFailedModalType] = useState<
+  //   "battle" | "recruit"
+  // >();
 
   const [battleResult, setBattleResult] = useState<IBattleResult>();
   const [isBattling, setBattling] = useState(false);
@@ -132,7 +133,9 @@ export function CastleDetailPage() {
       });
       const waitRes = await suiClient.waitForTransactionBlock({
         digest: exeRes.digest,
-        options: { showObjectChanges: true },
+        options: {
+          showObjectChanges: true,
+        },
       });
       console.log(waitRes);
       fetchDynamicFieldObject();
@@ -141,7 +144,11 @@ export function CastleDetailPage() {
       setBattleResult({ isSuccess: true });
     } catch (e) {
       console.error(e);
-      // setFailedModalType("battle");
+      toast.error(
+        <p className="line-clamp-5">
+          {getErrorDisplayText(e, "Failed to start battle!")}
+        </p>
+      );
     }
     setBattling(false);
   }, [
@@ -221,14 +228,14 @@ export function CastleDetailPage() {
           }}
         />
       )}
-      {failedModalType && (
+      {/* {failedModalType && (
         <InitOrRecruitFailedModal
           type={failedModalType}
           onClose={() => {
             setFailedModalType(undefined);
           }}
         />
-      )}
+      )} */}
       {showRecruitModal && (
         <RecruitModal
           onClose={() => {
