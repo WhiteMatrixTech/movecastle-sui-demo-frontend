@@ -8,6 +8,7 @@ import { TransactionBlock } from "@mysten/sui.js/transactions";
 import { GAME_STORE_OBJECT_ID, PACKAGE_OBJECT_ID } from "@/utils/const";
 import { suiClient } from "@/utils/suiClient";
 import { useWallet } from "@suiet/wallet-kit";
+import { getErrorDisplayText } from "@/utils/common";
 
 interface IRecruitModalProps {
   className?: string;
@@ -51,8 +52,12 @@ export function RecruitModal(props: IRecruitModalProps) {
         onRefresh();
         onClose();
       } catch (e) {
-        toast.error("Failed to recruit soldiers");
         console.error(e);
+        toast.error(
+          <p className="line-clamp-5">
+            {getErrorDisplayText(e, "Failed to recruit soldiers!")}
+          </p>
+        );
       }
       setRecruiting(false);
     } else {

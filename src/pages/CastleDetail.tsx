@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useParams } from "react-router-dom";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import cn from "classnames";
@@ -8,7 +7,6 @@ import {
   BattleResultModal,
   Button,
   EconomicAttr,
-  // InitOrRecruitFailedModal,
   MilitaryAttr,
   RecruitModal,
 } from "@/components";
@@ -100,10 +98,6 @@ export function CastleDetailPage() {
     fetchDynamicFieldObject();
   }, [fetchDynamicFieldObject, fetchGameObj, fetchSuiObj, id]);
 
-  // const [failedModalType, setFailedModalType] = useState<
-  //   "battle" | "recruit"
-  // >();
-
   const [battleResult, setBattleResult] = useState<IBattleResult>();
   const [isBattling, setBattling] = useState(false);
   const handleBattle = useCallback(async () => {
@@ -136,6 +130,7 @@ export function CastleDetailPage() {
         arguments: args,
       });
       const exeRes = await signAndExecuteTransactionBlock({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         transactionBlock: txb as any,
       });
       const waitRes = await suiClient.waitForTransactionBlock({
@@ -268,14 +263,6 @@ export function CastleDetailPage() {
           }}
         />
       )}
-      {/* {failedModalType && (
-        <InitOrRecruitFailedModal
-          type={failedModalType}
-          onClose={() => {
-            setFailedModalType(undefined);
-          }}
-        />
-      )} */}
       {showRecruitModal && (
         <RecruitModal
           id={id || ""}
