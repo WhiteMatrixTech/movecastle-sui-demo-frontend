@@ -30,5 +30,5 @@ export function mockPromise(time: number) {
 
 export function getErrorDisplayText(error: unknown, defaultMessage?: string) {
   if (!error) return defaultMessage;
-  return get(error, "message") || get(error, "msg") || JSON.stringify(e);
+  return get(error, "message") || get(error, "msg") || JSON.stringify(error);
 }
