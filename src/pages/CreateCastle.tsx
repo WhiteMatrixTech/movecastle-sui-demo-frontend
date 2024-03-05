@@ -46,7 +46,6 @@ export function CreateCastlePage() {
       txb.pure("0x6"),
       txb.pure(GAME_STORE_OBJECT_ID),
     ];
-    console.log(args);
     txb.moveCall({
       target: `${PACKAGE_OBJECT_ID}::castle::build_castle`,
       arguments: args,

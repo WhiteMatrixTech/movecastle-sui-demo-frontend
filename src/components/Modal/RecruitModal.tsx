@@ -1,17 +1,64 @@
 import cn from "classnames";
 import CloseSVG from "@/assets/close.svg?react";
-import { useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useClickAway } from "react-use";
 import { Button } from "..";
+import { toast } from "react-toastify";
+import { TransactionBlock } from "@mysten/sui.js/transactions";
+import { GAME_STORE_OBJECT_ID, PACKAGE_OBJECT_ID } from "@/utils/const";
+import { suiClient } from "@/utils/suiClient";
+import { useWallet } from "@suiet/wallet-kit";
 
 interface IRecruitModalProps {
   className?: string;
   onClose: () => void;
+  treasuryBalance?: number;
+  limit?: number;
+  id: string;
+  onRefresh: () => void;
 }
 export function RecruitModal(props: IRecruitModalProps) {
-  const { className, onClose } = props;
+  const [value, setValue] = useState("");
+  const { className, onClose, onRefresh, treasuryBalance, limit, id } = props;
   const ref = useRef<HTMLDivElement>(null);
   useClickAway(ref, onClose);
+
+  const { signAndExecuteTransactionBlock } = useWallet();
+  const [isRecruiting, setRecruiting] = useState(false);
+  const handleRecruit = useCallback(async () => {
+    if (value && !Number.isNaN(Number(value))) {
+      setRecruiting(true);
+      try {
+        const txb = new TransactionBlock();
+        const args = [
+          txb.pure(id),
+          txb.pure(value),
+          txb.pure("0x6"),
+          txb.pure(GAME_STORE_OBJECT_ID),
+        ];
+        txb.moveCall({
+          target: `${PACKAGE_OBJECT_ID}::castle::recruit_soldiers`,
+          arguments: args,
+        });
+        const exeRes = await signAndExecuteTransactionBlock({
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          transactionBlock: txb as any,
+        });
+        await suiClient.waitForTransactionBlock({
+          digest: exeRes.digest,
+          options: { showObjectChanges: true },
+        });
+        onRefresh();
+        onClose();
+      } catch (e) {
+        toast.error("Failed to recruit soldiers");
+        console.error(e);
+      }
+      setRecruiting(false);
+    } else {
+      toast.error("Please input a valid number");
+    }
+  }, [id, onClose, onRefresh, signAndExecuteTransactionBlock, value]);
 
   return (
     <div
@@ -33,21 +80,24 @@ export function RecruitModal(props: IRecruitModalProps) {
         </h2>
         <div className="text-sm mt-8 mb-4">
           <span className="text-[#686B6F]">Treasury Balance:</span>
-          <span className="text-[#07253E] font-medium">10000</span>
+          <span className="text-[#07253E] font-medium"> {treasuryBalance}</span>
         </div>
         <input
+          value={value}
+          onChange={(e) => {
+            setValue(e.target.value);
+          }}
           placeholder="Enter your pay amount"
           className="w-full p-4 bg-[#ECF1F4] placeholder:text-[#9DA1A4] text-sm outline-none"
         />
         <div className="mt-2 mb-[30px] text-xs text-[#A0B5C4]">
-          Please enter a value between 1 and xxx.
+          Please enter a value between 1 and {limit}.
         </div>
         <Button
           type="primary"
           className="w-[223px] h-10 sm:h-12 mx-auto"
-          onClick={() => {
-            onClose();
-          }}
+          loading={isRecruiting}
+          onClick={handleRecruit}
         >
           Confirm
         </Button>

@@ -176,6 +176,35 @@ export function CastleDetailPage() {
 
   console.log(dynamicFieldsObj, gameObj, suiObj);
 
+  const treasuryBalance = useMemo(
+    () =>
+      get(
+        dynamicFieldsObj,
+        "content.fields.value.fields.economy.fields.treasury"
+      ),
+    [dynamicFieldsObj]
+  );
+
+  const recruitLimit = useMemo(() => {
+    const castleSize = Number(
+      get(dynamicFieldsObj, "content.fields.value.fields.size")
+    );
+    if (!treasuryBalance) return;
+    //TODO:
+    const castleMaxSoldiers =
+      castleSize === 3 ? 1000 : castleSize === 2 ? 500 : 200;
+    const currentSoldiers = Number(
+      get(
+        dynamicFieldsObj,
+        "content.fields.value.fields.millitary.fields.soldiers"
+      )
+    );
+    return Math.min(
+      Number(treasuryBalance),
+      castleMaxSoldiers - currentSoldiers
+    );
+  }, [dynamicFieldsObj, treasuryBalance]);
+
   const castleImg = useMemo(
     () => get(suiObj, "display.data.image_url"),
     [suiObj]
@@ -249,8 +278,16 @@ export function CastleDetailPage() {
       )} */}
       {showRecruitModal && (
         <RecruitModal
+          id={id || ""}
+          treasuryBalance={treasuryBalance}
+          limit={recruitLimit}
           onClose={() => {
             setShowRecruitModal(false);
+          }}
+          onRefresh={() => {
+            fetchDynamicFieldObject();
+            fetchGameObj();
+            fetchSuiObj();
           }}
         />
       )}
