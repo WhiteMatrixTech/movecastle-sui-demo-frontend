@@ -24,12 +24,10 @@ export function EconomicAttr(props: IEconomicAttrProps) {
       dynamicFieldsObj,
       "content.fields.value.fields.economy.fields.soldier_buff.fields"
     ) as unknown as { debuff: boolean; power: string };
-    if (buff) {
-      if (buff.power === "0") {
-        return "None";
-      }
-      return `${buff.debuff ? "-" : "+"}${buff.power}%`;
+    if (buff && buff.power !== "0") {
+      return `${buff.debuff ? "-" : "+"}${buff.power}`;
     }
+    return 0;
   }, [dynamicFieldsObj]);
 
   const buffs = useMemo(() => {
@@ -51,6 +49,31 @@ export function EconomicAttr(props: IEconomicAttrProps) {
     };
   }, []);
 
+  const hasBattleBuff = useMemo(() => {
+    return !!buffs.find(
+      (item) =>
+        currentTime <= Number(item.end) && currentTime >= Number(item.start)
+    );
+  }, [buffs, currentTime]);
+
+  const totalEconomicPower = useMemo(() => {
+    const basePower = Number(
+      get(
+        dynamicFieldsObj,
+        "content.fields.value.fields.economy.fields.base_power"
+      )
+    );
+    const availableBuffs = buffs.filter(
+      (item) =>
+        currentTime <= Number(item.end) && currentTime >= Number(item.start)
+    );
+    let totalPower = basePower + Number(soldiersBonus);
+    for (const buff of availableBuffs) {
+      totalPower += Number(`${buff.debuff ? "-" : "+"}${buff.power}`);
+    }
+    return totalPower;
+  }, [dynamicFieldsObj, buffs, soldiersBonus, currentTime]);
+
   return (
     <AttrCard
       title="Economic Attributes"
@@ -63,31 +86,29 @@ export function EconomicAttr(props: IEconomicAttrProps) {
           dynamicFieldsObj,
           "content.fields.value.fields.economy.fields.base_power"
         ),
-        "Bonus From Soldiers": soldiersBonus,
+        "Bonus From Soldiers": soldiersBonus || "None",
         "Battle Reparations": (
           <div className="flex items-center gap-x-2 shrink-0">
-            {buffs.map((buff) => {
-              if (currentTime > Number(buff.end) || currentTime === 0) {
-                //buff结束了
-                return <></>;
-              }
-              const percentage =
-                (currentTime - Number(buff.start)) /
-                (Number(buff.end) - Number(buff.start));
+            {hasBattleBuff
+              ? buffs.map((buff) => {
+                  const percentage =
+                    (currentTime - Number(buff.start)) /
+                    (Number(buff.end) - Number(buff.start));
 
-              const text = `${buff.debuff ? "-" : "+"}${buff.power}`;
-              return (
-                <div key={buff.start} className="w-6 sm:w-8 aspect-square">
-                  <CircularProgressbar
-                    value={(1 - percentage) * 100}
-                    text={text}
-                  />
-                </div>
-              );
-            })}
+                  const text = `${buff.debuff ? "-" : "+"}${buff.power}`;
+                  return (
+                    <div key={buff.start} className="w-6 sm:w-8 aspect-square">
+                      <CircularProgressbar
+                        value={(1 - percentage) * 100}
+                        text={text}
+                      />
+                    </div>
+                  );
+                })
+              : "None"}
           </div>
         ),
-        "Total Economic Power": "TODO",
+        "Total Economic Power": totalEconomicPower,
       }}
     />
   );

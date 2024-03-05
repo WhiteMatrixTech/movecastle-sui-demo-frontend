@@ -21,8 +21,15 @@ import { get } from "lodash";
 import { TransactionBlock } from "@mysten/sui.js/transactions";
 import { getErrorDisplayText } from "@/utils/common";
 
-interface IBattleResult {
-  isSuccess: boolean;
+export interface IBattleResult {
+  attacker: string;
+  battle_time: string;
+  loser: string;
+  loser_soldiers_lost: string;
+  reparation_economic_power: string;
+  reparation_end_time: string;
+  winner: string;
+  winner_soldiers_lost: string;
 }
 
 export function CastleDetailPage() {
@@ -135,13 +142,17 @@ export function CastleDetailPage() {
         digest: exeRes.digest,
         options: {
           showObjectChanges: true,
+          showEvents: true,
         },
       });
-      console.log(waitRes);
+      const result = waitRes.events?.find(
+        (event) =>
+          event.type === `${PACKAGE_OBJECT_ID}::battle::CastleBattleLog`
+      )?.parsedJson;
       fetchDynamicFieldObject();
       fetchSuiObj();
       fetchGameObj();
-      setBattleResult({ isSuccess: true });
+      setBattleResult(result as IBattleResult);
     } catch (e) {
       console.error(e);
       toast.error(
@@ -222,7 +233,7 @@ export function CastleDetailPage() {
       </ActionButtonLayout>
       {battleResult && (
         <BattleResultModal
-          type={battleResult.isSuccess ? "victory" : "defeat"}
+          result={battleResult}
           onClose={() => {
             setBattleResult(undefined);
           }}

@@ -40,12 +40,13 @@ export function CreateCastlePage() {
     }
     const txb = new TransactionBlock();
     const args = [
-      txb.pure(size === "big" ? 3 : size === "middle" ? 2 : 1),
+      txb.pure(size === "big" ? "3" : size === "middle" ? "2" : "1"),
       txb.pure(name),
       txb.pure(desc),
       txb.pure("0x6"),
       txb.pure(GAME_STORE_OBJECT_ID),
     ];
+    console.log(args);
     txb.moveCall({
       target: `${PACKAGE_OBJECT_ID}::castle::build_castle`,
       arguments: args,
@@ -64,7 +65,7 @@ export function CreateCastlePage() {
     );
     const objId = (createdObj as any)?.objectId;
     objId && setCreatedObjectId(objId);
-  }, [name, desc, account?.address]);
+  }, [name, desc, account?.address, size]);
 
   return (
     <div className="pt-[10vh] sm:pt-[19vh] pb-[8vh]">

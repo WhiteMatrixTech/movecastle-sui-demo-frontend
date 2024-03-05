@@ -2,36 +2,65 @@ import cn from "classnames";
 import defaultImg from "@/assets/defeat.png";
 import victorImg from "@/assets/victory.png";
 import CloseSVG from "@/assets/close.svg?react";
-import { ReactNode, useRef } from "react";
+import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { useClickAway } from "react-use";
 import { Button } from "..";
 import { Link } from "react-router-dom";
+import { IBattleResult } from "@/pages/CastleDetail";
+import { suiClient } from "@/utils/suiClient";
+import { get } from "lodash";
 
 interface IBattleResultModalProps {
   className?: string;
-  type: "victory" | "defeat";
   onClose: () => void;
+  result: IBattleResult;
 }
 export function BattleResultModal(props: IBattleResultModalProps) {
-  const { className, type, onClose } = props;
+  const { className, onClose, result } = props;
   const ref = useRef<HTMLDivElement>(null);
   useClickAway(ref, onClose);
+  const isSuccess = useMemo(
+    () => result.attacker === result.winner,
+    [result.winner, result.attacker]
+  );
+  const [oppoCastleName, setOppoCastleName] = useState("");
+  const oppoCastleObjId = useMemo(() => {
+    if (isSuccess) {
+      return result.loser;
+    } else {
+      return result.winner;
+    }
+  }, [isSuccess, result.loser, result.winner]);
 
-  const mockData: Record<string, ReactNode> = {
-    "Battle Outcome": type === "defeat" ? "Defeat" : "Victory",
+  useEffect(() => {
+    suiClient
+      .getObject({ id: oppoCastleObjId, options: { showContent: true } })
+      .then((v) => {
+        const name = get(v.data, "content.fields.name");
+        name && setOppoCastleName(name);
+      })
+      .catch(console.error);
+  }, [oppoCastleObjId]);
+
+  const data: Record<string, ReactNode> = {
+    "Battle Outcome": isSuccess ? "Victory" : "Defeat",
     "Opponent's Castle": (
       <Link
-        to="/castles/2"
+        to={`/castles/${oppoCastleObjId}`}
         className="underline cursor-pointer text-[#55B2FB] z-30"
         onClick={() => {
           onClose();
         }}
       >
-        Name
+        {oppoCastleName}
       </Link>
     ),
-    "Soldier Losses": 1000,
-    "Battle Reparation": type === "defeat" ? "-10" : "+10",
+    "Soldier Losses": isSuccess
+      ? `-${result.winner_soldiers_lost}`
+      : `-${result.loser_soldiers_lost}`,
+    "Battle Reparation": `${isSuccess ? "+" : "-"}${
+      result.reparation_economic_power
+    }`,
   };
   return (
     <div
@@ -49,13 +78,13 @@ export function BattleResultModal(props: IBattleResultModalProps) {
           className="absolute right-4 top-1 sm:top-4 w-8 sm:w-[54px] aspect-square cursor-pointer"
         />
         <img
-          src={type === "defeat" ? defaultImg : victorImg}
+          src={isSuccess ? victorImg : defaultImg}
           className={cn("mx-auto h-[30px] sm:h-[44px] my-10")}
         />
         <ul className="w-[calc(100%_-_32px)] max-w-[389px] mx-auto z-30">
-          {Object.keys(mockData).map((key, index) => {
-            const element = mockData[key];
-            const isLast = index === Object.keys(mockData).length - 1;
+          {Object.keys(data).map((key, index) => {
+            const element = data[key];
+            const isLast = index === Object.keys(data).length - 1;
             return (
               <li
                 key={key}

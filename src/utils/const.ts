@@ -1,4 +1,4 @@
 export const PACKAGE_OBJECT_ID =
-  "0x2b6752cace067f7cb9e9ad5f092da1b96fd92c602f6acffb0bd88db3c6ebc323";
+  "0xa8c8d3dd017ce2942c4c0a5068b8dd1616f77064749921ea3c058d9cbbf7e8ff";
 export const GAME_STORE_OBJECT_ID =
-  "0x4f800949cc20cb013c8fbec9ec7cbb65c8711ce05c40a8df714f019484784807";
+  "0x95022b58d9cd6f56c1c5f19598e8fd3e5ae01ce6f3cc2e1cbbb1ff056ca40301";

@@ -33,13 +33,19 @@ export function MilitaryAttr(props: IMilitaryAttrProps) {
           "content.fields.value.fields.millitary.fields.attack_power"
         )} / ${get(
           dynamicFieldsObj,
-          "content.fields.value.fields.millitary.fields.defence_power"
+          "content.fields.value.fields.millitary.fields.defense_power"
         )}`,
         Soldiers: get(
           dynamicFieldsObj,
           "content.fields.value.fields.millitary.fields.soldiers"
         ),
-        "Total Attack Power / Defence Power": "TODO",
+        "Total Attack Power / Defence Power": `${get(
+          dynamicFieldsObj,
+          "content.fields.value.fields.millitary.fields.total_attack_power"
+        )} / ${get(
+          dynamicFieldsObj,
+          "content.fields.value.fields.millitary.fields.total_defense_power"
+        )}`,
         "Battle Cooldown": battleCooldown,
       }}
     />
