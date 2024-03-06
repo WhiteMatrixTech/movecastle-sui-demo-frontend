@@ -92,7 +92,7 @@ export function CreateCastlePage() {
         ) : (
           <div>
             <h1 className="text-center w-full text-[#131C28] text-lg sm:text-2xl font-semibold">
-              Castle attributes
+              Castle Attributes
             </h1>
             <form className="flex my-6 sm:my-8 flex-col gap-y-4 sm:gap-y-6">
               <div>

@@ -248,6 +248,10 @@ export function CastleDetailPage() {
               toast.error("Please sign in!");
               return;
             }
+            if (!treasuryBalance || Number(treasuryBalance) === 0) {
+              toast.error("Insufficient treasury balance!");
+              return;
+            }
             setShowRecruitModal(true);
           }}
         >
