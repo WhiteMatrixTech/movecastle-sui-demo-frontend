@@ -185,7 +185,6 @@ export function CastleDetailPage() {
       get(dynamicFieldsObj, "content.fields.value.fields.size")
     );
     if (!treasuryBalance) return;
-    //TODO:
     const castleMaxSoldiers =
       castleSize === 3 ? 2000 : castleSize === 2 ? 1000 : 500;
     const currentSoldiers = Number(
