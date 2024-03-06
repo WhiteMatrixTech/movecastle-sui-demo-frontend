@@ -5,5 +5,5 @@
 2、cd movecastle-sui-demo-frontend
 3、update contract address in src/utils/const.ts
 4、npm install
-5、npm build
+5、npm run build
 ```
