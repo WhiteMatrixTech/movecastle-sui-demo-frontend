@@ -5,7 +5,7 @@ import DefaultAvatar from "@/assets/default_avatar.png";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { CopyToClipboard } from "react-copy-to-clipboard";
-
+import PlusSVG from "@/assets/plus-castle.svg?react";
 import RightArrowSVG from "@/assets/right-arrow.svg?react";
 
 export function Account() {
@@ -30,8 +30,8 @@ export function Account() {
         </svg>
       </div>
       {/* dropdown */}
-      <div className="absolute bottom-0 overflow-hidden h-0 group-hover:h-[159px] duration-200 right-0 w-[226px] pt-1 translate-y-full">
-        <div className="bg-[#F8F9FB] h-[155px]">
+      <div className="absolute bottom-0 overflow-hidden h-0 group-hover:h-[190px] duration-200 right-0 w-[226px] pt-1 translate-y-full">
+        <div className="bg-[#F8F9FB] h-[188px]">
           <div className="pt-[12px] mb-[12px] px-3">
             <h3 className="text-[#686B6F] text-xs leading-[18px] mb-[6px]">
               Address
@@ -54,6 +54,13 @@ export function Account() {
             <div className="h-[22px] flex justify-between items-center px-3 mb-1 text-[#07253E]">
               <span className="text-sm font-medium">My Castles</span>
               <RightArrowSVG />
+            </div>
+          </Link>
+          <hr className="border-none h-[1px] bg-[#e6e7e9] mx-1 mb-2" />
+          <Link to="/create-castle">
+            <div className="h-[22px] flex justify-between items-center px-3 mb-1 text-[#07253E]">
+              <span className="text-sm font-medium">Create Castle</span>
+              <PlusSVG className="w-4 mr-[2px]" />
             </div>
           </Link>
 
