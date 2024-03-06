@@ -5,18 +5,19 @@ import cn from "classnames";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components";
 import fireworkImg from "@/assets/fireworks.png";
-import castleDefaultImg from "@/assets/castle-default.png";
 import { toast } from "react-toastify";
 import { useWallet } from "@suiet/wallet-kit";
 import { TransactionBlock } from "@mysten/sui.js/transactions";
 import { GAME_STORE_OBJECT_ID, PACKAGE_OBJECT_ID } from "@/utils/const";
 import { suiClient } from "@/utils/suiClient";
+import { get } from "lodash";
 
 type CastleSize = "small" | "middle" | "big";
 const sizes: CastleSize[] = ["small", "middle", "big"];
 export function CreateCastlePage() {
   const { account, signAndExecuteTransactionBlock } = useWallet();
   const [createdObjectId, setCreatedObjectId] = useState<string>();
+  const [createdCastleImg, setCreatedCastleImg] = useState<string>();
 
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
@@ -63,7 +64,15 @@ export function CreateCastlePage() {
         item.objectType === `${PACKAGE_OBJECT_ID}::castle::Castle`
     );
     const objId = (createdObj as any)?.objectId;
-    objId && setCreatedObjectId(objId);
+    console.log(createdObj);
+    if (objId) {
+      const createObjDetail = await suiClient.getObject({
+        id: objId,
+        options: { showContent: true },
+      });
+      setCreatedCastleImg(get(createObjDetail, "data.content.fields.image_id"));
+      setCreatedObjectId(objId);
+    }
   }, [name, desc, account?.address, size]);
 
   return (
@@ -79,7 +88,11 @@ export function CreateCastlePage() {
               />
               Successfully Built!
             </h1>
-            <img src={castleDefaultImg} alt="castle default" width={180} />
+            <img
+              src={`https://movecastle.info/static/media/castles/${createdCastleImg}.png`}
+              alt="castle img"
+              className="w-[180px] aspect-[0.64]"
+            />
             <div className="text-lg sm:text-2xl text-[#3592F7] font-bold">
               {name}
             </div>
@@ -103,7 +116,7 @@ export function CreateCastlePage() {
                   onChange={(e) => {
                     setName(e.target.value);
                   }}
-                  className="bg-[#EBF1F7] text-sm placeholder:text-[#4D5D69] px-2 sm:px-3 py-[9px] sm:py-[13px] rounded sm:rounded-md w-full focus:outline-none"
+                  className="bg-[#EBF1F7] text-sm text-[#1E4A6F] placeholder:text-[#4D5D69] px-2 sm:px-3 py-[9px] sm:py-[13px] rounded sm:rounded-md w-full focus:outline-none"
                 />
               </div>
               <div>
@@ -115,7 +128,7 @@ export function CreateCastlePage() {
                   onChange={(e) => {
                     setDesc(e.target.value);
                   }}
-                  className="bg-[#EBF1F7] text-sm placeholder:text-[#4D5D69] px-2 sm:px-3 py-[9px] sm:py-[13px] rounded sm:rounded-md w-full focus:outline-none"
+                  className="bg-[#EBF1F7] text-sm text-[#1E4A6F] placeholder:text-[#4D5D69] px-2 sm:px-3 py-[9px] sm:py-[13px] rounded sm:rounded-md w-full focus:outline-none"
                 />
               </div>
               <div>
@@ -131,7 +144,7 @@ export function CreateCastlePage() {
                   onClick={() => {
                     toggleShowSizeDropdown();
                   }}
-                  className="cursor-pointer relative uppercase flex justify-between items-center bg-[#EBF1F7] text-sm placeholder:text-[#4D5D69] px-2 sm:px-3 py-[9px] sm:py-[13px] rounded sm:rounded-md w-full"
+                  className="cursor-pointer relative uppercase flex justify-between items-center bg-[#EBF1F7] text-sm text-[#1E4A6F] placeholder:text-[#4D5D69] px-2 sm:px-3 py-[9px] sm:py-[13px] rounded sm:rounded-md w-full"
                 >
                   <span className="capitalize">{size}</span>
                   <svg
