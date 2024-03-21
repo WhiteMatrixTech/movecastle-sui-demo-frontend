@@ -14,8 +14,8 @@ export function Header() {
   );
 
   useEffect(() => {
-    if (account?.address && chain?.id && chain?.id !== "sui:testnet") {
-      toast.error("Please switch to Sui Testnet!");
+    if (account?.address && chain?.id && chain?.id !== "sui:devnet") {
+      toast.error("Please switch to Sui Devnet!");
     }
   }, [account?.address, chain]);
 
