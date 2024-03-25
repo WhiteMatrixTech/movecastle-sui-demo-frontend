@@ -56,11 +56,13 @@ export function ProfilePage() {
           return (
             <li
               key={index}
-              className="w-full flex-col mx-auto sm:mx-0 max-w-[320px] sm:w-[320px] aspect-square flex items-center justify-center bg-white"
+              className="w-full p-4 flex-col mx-auto sm:mx-0 max-w-[320px] sm:w-[320px] aspect-square flex items-center justify-center bg-white"
             >
               <img
                 src={`https://movecastle.info/static/media/castles/${imgId}.png`}
-                className={cn("w-[38%] aspect-[0.64]")}
+                className={cn(
+                  "w-[calc(100%_-_32px)] rounded mx-auto aspect-square"
+                )}
                 alt="castle default"
               />
               <span className="mt-3 mb-[30px] font-bold">

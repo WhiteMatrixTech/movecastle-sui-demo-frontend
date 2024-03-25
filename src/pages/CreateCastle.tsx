@@ -91,7 +91,7 @@ export function CreateCastlePage() {
             <img
               src={`https://movecastle.info/static/media/castles/${createdCastleImg}.png`}
               alt="castle img"
-              className="w-[180px] aspect-[0.64]"
+              className="w-full aspect-square mx-auto max-w-[240px] rounded-lg"
             />
             <div className="text-lg sm:text-2xl text-[#3592F7] font-bold">
               {name}

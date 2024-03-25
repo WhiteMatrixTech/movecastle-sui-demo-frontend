@@ -212,7 +212,7 @@ export function CastleDetailPage() {
             src={castleImg}
             alt="castle default img"
             className={cn(
-              "w-[49%] mx-auto aspect-[0.64]",
+              "w-full mx-auto aspect-square rounded-lg",
               castleImg ? "opacity-100" : "opacity-0"
             )}
           />
