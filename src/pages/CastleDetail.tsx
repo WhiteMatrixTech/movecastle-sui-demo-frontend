@@ -194,7 +194,7 @@ export function CastleDetailPage() {
       )
     );
     return Math.min(
-      Number(treasuryBalance),
+      Math.floor(Number(treasuryBalance) / 100),
       castleMaxSoldiers - currentSoldiers
     );
   }, [dynamicFieldsObj, treasuryBalance]);
@@ -269,7 +269,6 @@ export function CastleDetailPage() {
       {showRecruitModal && (
         <RecruitModal
           id={id || ""}
-          treasuryBalance={treasuryBalance}
           limit={recruitLimit}
           onClose={() => {
             setShowRecruitModal(false);

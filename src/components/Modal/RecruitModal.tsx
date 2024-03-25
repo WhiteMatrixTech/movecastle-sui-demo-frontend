@@ -1,6 +1,7 @@
 import cn from "classnames";
 import CloseSVG from "@/assets/close.svg?react";
-import { useCallback, useRef, useState } from "react";
+import RefreshSVG from "@/assets/refresh.svg?react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useClickAway } from "react-use";
 import { Button } from "..";
 import { toast } from "react-toastify";
@@ -9,18 +10,19 @@ import { GAME_STORE_OBJECT_ID, PACKAGE_OBJECT_ID } from "@/utils/const";
 import { suiClient } from "@/utils/suiClient";
 import { useWallet } from "@suiet/wallet-kit";
 import { getErrorDisplayText } from "@/utils/common";
+import tipImg from "@/assets/recruit_tip.png";
+import { get } from "lodash";
 
 interface IRecruitModalProps {
   className?: string;
   onClose: () => void;
-  treasuryBalance?: number;
   limit?: number;
   id: string;
   onRefresh: () => void;
 }
 export function RecruitModal(props: IRecruitModalProps) {
   const [value, setValue] = useState("");
-  const { className, onClose, onRefresh, treasuryBalance, limit, id } = props;
+  const { className, onClose, onRefresh, limit, id } = props;
   const ref = useRef<HTMLDivElement>(null);
   useClickAway(ref, onClose);
 
@@ -65,6 +67,59 @@ export function RecruitModal(props: IRecruitModalProps) {
     }
   }, [id, onClose, onRefresh, signAndExecuteTransactionBlock, value]);
 
+  const [displayTreasuryBalance, setDisplayTreasuryBalance] =
+    useState<number>();
+
+  useEffect(() => {}, []);
+  const [isRefreshed, setRefreshed] = useState(false);
+  const [isRefreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      const txb = new TransactionBlock();
+      const args = [
+        txb.pure(id),
+        txb.pure("0x6"),
+        txb.pure(GAME_STORE_OBJECT_ID),
+      ];
+      txb.moveCall({
+        target: `${PACKAGE_OBJECT_ID}::castle::settle_castle_economy`,
+        arguments: args,
+      });
+      const exeRes = await signAndExecuteTransactionBlock({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        transactionBlock: txb as any,
+      });
+      await suiClient.waitForTransactionBlock({
+        digest: exeRes.digest,
+        options: { showObjectChanges: true },
+      });
+      const dynamicFieldsObj = await suiClient.getDynamicFieldObject({
+        parentId: GAME_STORE_OBJECT_ID,
+        name: {
+          type: "0x2::object::ID",
+          value: id,
+        },
+      });
+      const treasury = get(
+        dynamicFieldsObj.data,
+        "content.fields.value.fields.economy.fields.treasury"
+      );
+      setDisplayTreasuryBalance(Number(treasury));
+      onRefresh();
+      setRefreshed(true);
+    } catch (e) {
+      console.error(e);
+    }
+    setRefreshing(false);
+  }, [id, onRefresh, signAndExecuteTransactionBlock]);
+
+  const buttonDisabled = useMemo(
+    () => isRecruiting || !isRefreshed,
+    [isRecruiting, isRefreshed]
+  );
+
   return (
     <div
       className={cn(
@@ -83,9 +138,29 @@ export function RecruitModal(props: IRecruitModalProps) {
         <h2 className="text-center text-lg sm:text-2xl text-[#07253E] font-bold">
           Recruitment Treasury
         </h2>
-        <div className="text-sm mt-8 mb-4">
+        <div className="text-sm mt-8 mb-4 flex items-center">
           <span className="text-[#686B6F]">Treasury Balance:</span>
-          <span className="text-[#07253E] font-medium"> {treasuryBalance}</span>
+          <span className="text-[#07253E] font-medium">
+            {" "}
+            &nbsp;
+            {displayTreasuryBalance || "--"}
+          </span>
+          <div className="relative">
+            <RefreshSVG
+              onClick={handleRefresh}
+              className={cn(
+                "w-6 h-6 ml-2 cursor-pointer",
+                isRefreshing && "animate-spin"
+              )}
+            />
+            {!isRefreshed && (
+              <img
+                src={tipImg}
+                alt="tip"
+                className="min-w-[156px] absolute right-0 translate-x-full -top-8"
+              />
+            )}
+          </div>
         </div>
         <input
           value={value}
@@ -95,12 +170,21 @@ export function RecruitModal(props: IRecruitModalProps) {
           placeholder="Enter your pay amount"
           className="w-full p-4 bg-[#ECF1F4] placeholder:text-[#9DA1A4] text-sm outline-none"
         />
-        <div className="mt-2 mb-[30px] text-xs text-[#A0B5C4]">
-          Please enter a value between 1 and {limit}.
-        </div>
+        {displayTreasuryBalance !== undefined ? (
+          <div className="mt-2 text-xs text-[#A0B5C4] capitalize">
+            please enter a value between 1 and {limit}. one soldier costs 100
+            treasuries.
+          </div>
+        ) : (
+          <></>
+        )}
         <Button
           type="primary"
-          className="w-[223px] h-10 sm:h-12 mx-auto"
+          disable={buttonDisabled}
+          className={cn(
+            "w-[223px] h-10 sm:h-12 mx-auto mt-[30px]",
+            buttonDisabled && "!opacity-50 !cursor-not-allowed"
+          )}
           loading={isRecruiting}
           onClick={handleRecruit}
         >
