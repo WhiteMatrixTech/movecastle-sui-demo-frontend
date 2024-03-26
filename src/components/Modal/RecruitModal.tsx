@@ -13,7 +13,6 @@ import {
 } from "@/utils/const";
 import { suiClient } from "@/utils/suiClient";
 import { useWallet } from "@suiet/wallet-kit";
-import { getErrorDisplayText } from "@/utils/common";
 import tipImg from "@/assets/recruit_tip.png";
 import { get } from "lodash";
 
@@ -60,9 +59,7 @@ export function RecruitModal(props: IRecruitModalProps) {
       } catch (e) {
         console.error(e);
         toast.error(
-          <p className="line-clamp-5">
-            {getErrorDisplayText(e, "Failed to recruit soldiers!")}
-          </p>
+          <p className="line-clamp-5">Failed to recruit soldiers!</p>
         );
       }
       setRecruiting(false);

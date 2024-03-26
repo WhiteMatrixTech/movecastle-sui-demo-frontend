@@ -24,7 +24,6 @@ import {
 } from "@/utils/const";
 import { get } from "lodash";
 import { TransactionBlock } from "@mysten/sui.js/transactions";
-import { getErrorDisplayText } from "@/utils/common";
 
 export interface IBattleResult {
   attacker: string;
@@ -136,11 +135,7 @@ export function CastleDetailPage() {
       setBattleResult(result as IBattleResult);
     } catch (e) {
       console.error(e);
-      toast.error(
-        <p className="line-clamp-5">
-          {getErrorDisplayText(e, "Failed to start battle!")}
-        </p>
-      );
+      toast.error(<p className="line-clamp-5">Failed to start battle!</p>);
     }
     setBattling(false);
   }, [

@@ -2,7 +2,6 @@ import LeftArrow from "@/assets/left-arrow.svg?react";
 import { useWallet } from "@suiet/wallet-kit";
 import { useCallback, useEffect, useMemo } from "react";
 import { toast } from "react-toastify";
-import { handleUnknownTypeError } from "@/utils/common";
 import { Account } from "./Account";
 import { targetNetwork } from "@/utils/const";
 
@@ -43,7 +42,7 @@ export function Header() {
         await select(suiWallet.name);
       } catch (e: unknown) {
         console.error(e);
-        handleUnknownTypeError(e);
+        toast.error("Sign in failed!");
       }
     }
   }, [select, suiWallet]);
