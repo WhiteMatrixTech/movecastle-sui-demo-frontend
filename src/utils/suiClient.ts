@@ -1,4 +1,4 @@
 import { getFullnodeUrl, SuiClient } from "@mysten/sui.js/client";
+import { targetNetwork } from "./const";
 
-// create a client connected to devnet
-export const suiClient = new SuiClient({ url: getFullnodeUrl("devnet") });
+export const suiClient = new SuiClient({ url: getFullnodeUrl(targetNetwork) });

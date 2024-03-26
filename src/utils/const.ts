@@ -3,6 +3,8 @@ export const PACKAGE_OBJECT_ID =
 export const GAME_STORE_OBJECT_ID =
   "0x6a6458397b77d3c8e762c2e2203b491eabc5f5f655cadeb99b1cf37e4ee20e78";
 
+export const targetNetwork = "devnet";
+
 export enum ECastleSize {
   BIG = 3,
   MIDDLE = 2,

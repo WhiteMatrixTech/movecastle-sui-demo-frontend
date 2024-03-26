@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo } from "react";
 import { toast } from "react-toastify";
 import { handleUnknownTypeError } from "@/utils/common";
 import { Account } from "./Account";
+import { targetNetwork } from "@/utils/const";
 
 export function Header() {
   const { select, allAvailableWallets, account, chain } = useWallet();
@@ -14,8 +15,8 @@ export function Header() {
   );
 
   useEffect(() => {
-    if (account?.address && chain?.id && chain?.id !== "sui:devnet") {
-      toast.error("Please switch to Sui Devnet!");
+    if (account?.address && chain?.id && chain?.id !== `sui:${targetNetwork}`) {
+      toast.error(`Please switch to sui ${targetNetwork}!`);
     }
   }, [account?.address, chain]);
 
