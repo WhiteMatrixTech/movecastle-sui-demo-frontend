@@ -42,7 +42,6 @@ export function CastleDetailPage() {
   const { account, signAndExecuteTransactionBlock } = useWallet();
 
   const [suiObj, setSuiObj] = useState<SuiObjectData | null | undefined>();
-  const [gameObj, setGameObj] = useState<SuiObjectData | null | undefined>();
   const [dynamicFieldsObj, setDynamicFieldsObj] = useState<
     SuiObjectData | undefined | null
   >();
@@ -65,24 +64,6 @@ export function CastleDetailPage() {
       .catch(console.error);
   }, [id]);
 
-  const fetchGameObj = useCallback(() => {
-    if (!id) return;
-    suiClient
-      .getObject({
-        id: GAME_STORE_OBJECT_ID,
-        options: {
-          showContent: true,
-          showDisplay: true,
-          showOwner: true,
-          showType: true,
-        },
-      })
-      .then((v) => {
-        setGameObj(v?.data);
-      })
-      .catch(console.error);
-  }, [id]);
-
   const fetchDynamicFieldObject = useCallback(() => {
     if (!id) return;
     suiClient
@@ -101,9 +82,8 @@ export function CastleDetailPage() {
 
   useEffect(() => {
     fetchSuiObj();
-    fetchGameObj();
     fetchDynamicFieldObject();
-  }, [fetchDynamicFieldObject, fetchGameObj, fetchSuiObj, id]);
+  }, [fetchDynamicFieldObject, fetchSuiObj, id]);
 
   const [battleResult, setBattleResult] = useState<IBattleResult>();
   const [isBattling, setBattling] = useState(false);
@@ -153,7 +133,6 @@ export function CastleDetailPage() {
       )?.parsedJson;
       fetchDynamicFieldObject();
       fetchSuiObj();
-      fetchGameObj();
       setBattleResult(result as IBattleResult);
     } catch (e) {
       console.error(e);
@@ -168,7 +147,6 @@ export function CastleDetailPage() {
     account?.address,
     dynamicFieldsObj,
     fetchDynamicFieldObject,
-    fetchGameObj,
     fetchSuiObj,
     id,
     signAndExecuteTransactionBlock,
@@ -176,7 +154,7 @@ export function CastleDetailPage() {
 
   const [showRecruitModal, setShowRecruitModal] = useState(false);
 
-  console.log(dynamicFieldsObj, gameObj, suiObj);
+  console.log(suiObj);
 
   const treasuryBalance = useMemo(
     () =>
@@ -281,7 +259,6 @@ export function CastleDetailPage() {
           }}
           onRefresh={() => {
             fetchDynamicFieldObject();
-            fetchGameObj();
             fetchSuiObj();
           }}
         />

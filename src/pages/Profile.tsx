@@ -59,7 +59,7 @@ export function ProfilePage() {
               className="w-full p-4 flex-col mx-auto sm:mx-0 max-w-[320px] sm:w-[320px] aspect-square flex items-center justify-center bg-white"
             >
               <img
-                src={`https://movecastle.info/static/media/castles/${imgId}.png`}
+                src={`https://images.movecastle.info/static/media/castles/${imgId}.png`}
                 className={cn(
                   "w-[calc(100%_-_32px)] rounded mx-auto aspect-square"
                 )}

@@ -94,7 +94,7 @@ export function CreateCastlePage() {
               Successfully Built!
             </h1>
             <img
-              src={`https://movecastle.info/static/media/castles/${createdCastleImg}.png`}
+              src={`https://images.movecastle.info/static/media/castles/${createdCastleImg}.png`}
               alt="castle img"
               className="w-full aspect-square mx-auto max-w-[240px] rounded-lg"
             />
