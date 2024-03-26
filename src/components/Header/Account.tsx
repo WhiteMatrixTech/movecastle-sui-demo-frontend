@@ -11,7 +11,7 @@ import RightArrowSVG from "@/assets/right-arrow.svg?react";
 export function Account() {
   const { account, disconnect } = useWallet();
   return (
-    <div className="group cursor-pointer py-3 relative hover:text-[#C0CBDF] duration-200 text-white">
+    <div className="group cursor-pointer py-3 relative hover:text-[#C0CBDF] duration-200 text-white z-50">
       <div className="flex items-center gap-x-1 sm:gap-x-2">
         <img src={DefaultAvatar} className="w-8 sm:w-12" />
         <span className="text-sm sm:text-base">
@@ -40,12 +40,13 @@ export function Account() {
               <span className="text-[#07253E] text-sm leading-[18px] font-medium">
                 {abbrAddress(account?.address, 18)}
               </span>
-              <CopyToClipboard text={account?.address || ""}>
-                <CopySVG
-                  onClick={() => {
-                    toast.success("Copied!");
-                  }}
-                />
+              <CopyToClipboard
+                onCopy={() => {
+                  toast.success("Copied!");
+                }}
+                text={account?.address || ""}
+              >
+                <CopySVG />
               </CopyToClipboard>
             </div>
           </div>
@@ -58,9 +59,9 @@ export function Account() {
           </Link>
           <hr className="border-none h-[1px] bg-[#e6e7e9] mx-1 mb-2" />
           <Link to="/create-castle">
-            <div className="h-[22px] flex justify-between items-center px-3 mb-1 text-[#07253E]">
+            <div className="h-[22px] overflow-y-hidden flex justify-between items-center px-3 mb-1 text-[#07253E]">
               <span className="text-sm font-medium">Create Castle</span>
-              <PlusSVG className="w-4 mr-[2px]" />
+              <PlusSVG className="w-4 mr-[2px] aspect-square h-4" />
             </div>
           </Link>
 
