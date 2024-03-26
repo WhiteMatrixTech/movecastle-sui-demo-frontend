@@ -15,24 +15,27 @@ export function ProfilePage() {
   const [ownCastleObjs, setOwnCastleObjs] = useState<SuiObjectResponse[]>([]);
 
   useEffect(() => {
-    if (!account?.address) return;
-    suiClient
-      .getOwnedObjects({
-        owner: account.address,
-        options: {
-          showContent: true,
-        },
-      })
-      .then((v) => {
-        setOwnCastleObjs(
-          v.data?.filter(
-            (item) =>
-              get(item, "data.content.type") ===
-              `${PACKAGE_OBJECT_ID}::castle::Castle`
-          )
-        );
-      })
-      .catch(console.error);
+    if (account?.address) {
+      suiClient
+        .getOwnedObjects({
+          owner: account.address,
+          options: {
+            showContent: true,
+          },
+        })
+        .then((v) => {
+          setOwnCastleObjs(
+            v.data?.filter(
+              (item) =>
+                get(item, "data.content.type") ===
+                `${PACKAGE_OBJECT_ID}::castle::Castle`
+            )
+          );
+        })
+        .catch(console.error);
+    } else {
+      setOwnCastleObjs([]);
+    }
   }, [account?.address]);
 
   return (
