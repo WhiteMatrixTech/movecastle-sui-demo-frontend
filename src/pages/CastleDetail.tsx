@@ -154,8 +154,6 @@ export function CastleDetailPage() {
 
   const [showRecruitModal, setShowRecruitModal] = useState(false);
 
-  console.log(suiObj);
-
   const treasuryBalance = useMemo(
     () =>
       get(
@@ -207,7 +205,14 @@ export function CastleDetailPage() {
             {suiObj?.objectId}
           </p>
         </div>
-        <BasicAttr suiObj={suiObj} dynamicFieldsObj={dynamicFieldsObj} />
+        <BasicAttr
+          onRefresh={() => {
+            fetchSuiObj();
+            fetchDynamicFieldObject();
+          }}
+          suiObj={suiObj}
+          dynamicFieldsObj={dynamicFieldsObj}
+        />
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <EconomicAttr dynamicFieldsObj={dynamicFieldsObj} />
