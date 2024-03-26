@@ -6,7 +6,11 @@ import { useClickAway } from "react-use";
 import { Button } from "..";
 import { toast } from "react-toastify";
 import { TransactionBlock } from "@mysten/sui.js/transactions";
-import { GAME_STORE_OBJECT_ID, PACKAGE_OBJECT_ID } from "@/utils/const";
+import {
+  CLOCK_OBJ_ID,
+  GAME_STORE_OBJECT_ID,
+  PACKAGE_OBJECT_ID,
+} from "@/utils/const";
 import { suiClient } from "@/utils/suiClient";
 import { useWallet } from "@suiet/wallet-kit";
 import { getErrorDisplayText } from "@/utils/common";
@@ -36,7 +40,7 @@ export function RecruitModal(props: IRecruitModalProps) {
         const args = [
           txb.pure(id),
           txb.pure(value),
-          txb.pure("0x6"),
+          txb.pure(CLOCK_OBJ_ID),
           txb.pure(GAME_STORE_OBJECT_ID),
         ];
         txb.moveCall({
@@ -80,7 +84,7 @@ export function RecruitModal(props: IRecruitModalProps) {
       const txb = new TransactionBlock();
       const args = [
         txb.pure(id),
-        txb.pure("0x6"),
+        txb.pure(CLOCK_OBJ_ID),
         txb.pure(GAME_STORE_OBJECT_ID),
       ];
       txb.moveCall({

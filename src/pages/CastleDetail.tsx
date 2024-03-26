@@ -14,7 +14,14 @@ import { useWallet } from "@suiet/wallet-kit";
 import { toast } from "react-toastify";
 import { SuiObjectData } from "@mysten/sui.js/client";
 import { suiClient } from "@/utils/suiClient";
-import { GAME_STORE_OBJECT_ID, PACKAGE_OBJECT_ID } from "@/utils/const";
+import {
+  CastleSoliderLimitMap,
+  CLOCK_OBJ_ID,
+  ECastleSize,
+  GAME_STORE_OBJECT_ID,
+  PACKAGE_OBJECT_ID,
+  treasuriesPerSolider,
+} from "@/utils/const";
 import { get } from "lodash";
 import { TransactionBlock } from "@mysten/sui.js/transactions";
 import { getErrorDisplayText } from "@/utils/common";
@@ -122,7 +129,7 @@ export function CastleDetailPage() {
       const txb = new TransactionBlock();
       const args = [
         txb.pure(id),
-        txb.pure("0x6"),
+        txb.pure(CLOCK_OBJ_ID),
         txb.pure(GAME_STORE_OBJECT_ID),
       ];
       txb.moveCall({
@@ -183,10 +190,9 @@ export function CastleDetailPage() {
   const recruitLimit = useMemo(() => {
     const castleSize = Number(
       get(dynamicFieldsObj, "content.fields.value.fields.size")
-    );
+    ) as ECastleSize;
     if (!treasuryBalance) return;
-    const castleMaxSoldiers =
-      castleSize === 3 ? 2000 : castleSize === 2 ? 1000 : 500;
+    const castleMaxSoldiers = CastleSoliderLimitMap[castleSize];
     const currentSoldiers = Number(
       get(
         dynamicFieldsObj,
@@ -194,7 +200,7 @@ export function CastleDetailPage() {
       )
     );
     return Math.min(
-      Math.floor(Number(treasuryBalance) / 100),
+      Math.floor(Number(treasuryBalance) / treasuriesPerSolider),
       castleMaxSoldiers - currentSoldiers
     );
   }, [dynamicFieldsObj, treasuryBalance]);

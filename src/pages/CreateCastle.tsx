@@ -8,12 +8,17 @@ import fireworkImg from "@/assets/fireworks.png";
 import { toast } from "react-toastify";
 import { useWallet } from "@suiet/wallet-kit";
 import { TransactionBlock } from "@mysten/sui.js/transactions";
-import { GAME_STORE_OBJECT_ID, PACKAGE_OBJECT_ID } from "@/utils/const";
+import {
+  CastleNameMap,
+  CLOCK_OBJ_ID,
+  ECastleSize,
+  GAME_STORE_OBJECT_ID,
+  PACKAGE_OBJECT_ID,
+} from "@/utils/const";
 import { suiClient } from "@/utils/suiClient";
 import { get } from "lodash";
 
-type CastleSize = "small" | "middle" | "big";
-const sizes: CastleSize[] = ["small", "middle", "big"];
+const sizes = [ECastleSize.BIG, ECastleSize.MIDDLE, ECastleSize.SMALL];
 export function CreateCastlePage() {
   const { account, signAndExecuteTransactionBlock } = useWallet();
   const [createdObjectId, setCreatedObjectId] = useState<string>();
@@ -21,7 +26,7 @@ export function CreateCastlePage() {
 
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
-  const [size, setSize] = useState<CastleSize>("small");
+  const [size, setSize] = useState<ECastleSize>(ECastleSize.SMALL);
 
   const [showSizeDropDown, toggleShowSizeDropdown] = useToggle(false);
   const selectRef = useRef<HTMLDivElement>(null);
@@ -41,10 +46,10 @@ export function CreateCastlePage() {
     }
     const txb = new TransactionBlock();
     const args = [
-      txb.pure(size === "big" ? "3" : size === "middle" ? "2" : "1"),
+      txb.pure(size.toString()),
       txb.pure(name),
       txb.pure(desc),
-      txb.pure("0x6"),
+      txb.pure(CLOCK_OBJ_ID),
       txb.pure(GAME_STORE_OBJECT_ID),
     ];
     txb.moveCall({
@@ -146,7 +151,7 @@ export function CreateCastlePage() {
                   }}
                   className="cursor-pointer relative uppercase flex justify-between items-center bg-[#EBF1F7] text-sm text-[#1E4A6F] placeholder:text-[#4D5D69] px-2 sm:px-3 py-[9px] sm:py-[13px] rounded sm:rounded-md w-full"
                 >
-                  <span className="capitalize">{size}</span>
+                  <span className="capitalize">{CastleNameMap[size]}</span>
                   <svg
                     width="18"
                     height="13"
@@ -179,7 +184,7 @@ export function CreateCastlePage() {
                         }}
                         className="flex items-center duration-200 capitalize rounded sm:rounded-md hover:bg-[#C6E4F9] text-[#4D5D69] h-[37px] px-2 sm:px-[14px["
                       >
-                        {item}
+                        {CastleNameMap[item]}
                       </li>
                     ))}
                   </ul>
