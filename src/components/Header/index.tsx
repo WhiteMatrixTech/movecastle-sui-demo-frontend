@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo } from "react";
 import { toast } from "react-toastify";
 import { Account } from "./Account";
 import { targetNetwork } from "@/utils/const";
+import { useNavigate } from "react-router-dom";
 
 export function Header() {
   const { select, allAvailableWallets, account, chain } = useWallet();
@@ -47,16 +48,19 @@ export function Header() {
     }
   }, [select, suiWallet]);
 
+  const navigate = useNavigate();
+
   return (
     <header className="sticky bg-[#001731] top-0 z-50 inset-x-0 h-16 sm:h-[72px] px-4 sm:px-[4.16vw] flex items-center justify-between">
       {/* left */}
-      <a
-        href="https://edu-staging-e64a0cba6d.chainide.com/courses/105/"
-        className="flex items-center gap-x-1 sm:gap-x-[10px] hover:text-[#C0CBDF] duration-200 text-white"
+      <div
+        onClick={() => {
+          navigate(-1);
+        }}
+        className="flex cursor-pointer items-center gap-x-1 sm:gap-x-[10px] hover:text-[#C0CBDF] duration-200 text-white"
       >
         <LeftArrow className="w-4 sm:w-6" />
-        <span className="text-sm sm:text-lg">Web3 Course 105 - Sui</span>
-      </a>
+      </div>
 
       {/* right */}
       {account?.address ? (
