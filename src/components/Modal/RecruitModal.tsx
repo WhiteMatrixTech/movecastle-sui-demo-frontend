@@ -136,7 +136,7 @@ export function RecruitModal(props: IRecruitModalProps) {
           onClick={onClose}
           className="absolute right-4 top-1 sm:top-4 w-8 sm:w-[54px] aspect-square cursor-pointer"
         />
-        <h2 className="text-center text-lg sm:text-2xl text-[#07253E] font-bold">
+        <h2 className="text-center text-lg mb-10 sm:text-2xl text-[#07253E] font-bold">
           Recruitment Treasury
         </h2>
         <div className="text-sm mt-8 mb-4 flex items-center">
@@ -158,7 +158,7 @@ export function RecruitModal(props: IRecruitModalProps) {
               <img
                 src={tipImg}
                 alt="tip"
-                className="min-w-[156px] absolute right-0 translate-x-full -top-8"
+                className="min-w-[180px] sm:min-w-[218px] absolute right-6 sm:right-2 translate-x-full -top-7"
               />
             )}
           </div>
