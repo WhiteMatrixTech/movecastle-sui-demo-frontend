@@ -181,6 +181,12 @@ export function CastleDetailPage() {
     [suiObj]
   );
 
+  const isMyCastle = useMemo(
+    () =>
+      account?.address && account.address === get(suiObj, "owner.AddressOwner"),
+    [account, suiObj]
+  );
+
   return (
     <div className="mx-auto w-[calc(100vw_-_32px)] max-w-[862px] py-8 sm:py-16">
       <div className="grid grid-cols-1 sm:grid-cols-2 mb-4">
@@ -215,6 +221,7 @@ export function CastleDetailPage() {
       </div>
       <ActionButtonLayout type="engage" className="my-4">
         <Button
+          disable={!isMyCastle}
           type="primary"
           className="w-full sm:w-[223px] h-12 z-10"
           onClick={handleBattle}
@@ -225,6 +232,7 @@ export function CastleDetailPage() {
       </ActionButtonLayout>
       <ActionButtonLayout type="enlist">
         <Button
+          disable={!isMyCastle}
           type="primary"
           className="w-full sm:w-[223px] h-12 z-10 shrink-0"
           onClick={() => {

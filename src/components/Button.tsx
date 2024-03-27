@@ -29,6 +29,7 @@ export function Button(props: IButtonProps) {
       }}
       className={cn(
         className,
+        disable && "!opacity-75 !cursor-not-allowed",
         "rounded sm:rounded-md duration-200 hover:opacity-75 flex items-center justify-center",
         type === "primary" &&
           "text-white bg-[linear-gradient(to_right,#68d7ef_0%,#56b5f9_33%,#4ca2ff_100%)]",
