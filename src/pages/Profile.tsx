@@ -69,7 +69,7 @@ export function ProfilePage() {
                 alt="castle default"
               />
               <span className="mt-3 mb-[30px] font-bold">
-                {get(castle, "data.content.fields.name")}
+                {String(get(castle, "data.content.fields.name"))}
               </span>
               <Link to={`/castles/${castle.data?.objectId}`} className="w-full">
                 <Button type="primary" className="h-10 sm:h-12 w-[70%] mx-auto">

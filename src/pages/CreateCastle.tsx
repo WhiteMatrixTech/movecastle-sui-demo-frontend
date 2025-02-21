@@ -75,7 +75,9 @@ export function CreateCastlePage() {
         id: objId,
         options: { showContent: true },
       });
-      setCreatedCastleImg(get(createObjDetail, "data.content.fields.image_id"));
+      setCreatedCastleImg(
+        String(get(createObjDetail, "data.content.fields.image_id"))
+      );
       setCreatedObjectId(objId);
     }
   }, [name, desc, account?.address, size]);

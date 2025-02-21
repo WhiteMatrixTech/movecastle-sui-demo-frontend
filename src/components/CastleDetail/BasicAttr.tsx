@@ -38,7 +38,10 @@ export function BasicAttr(props: IBasicAttrProps) {
   const race = useMemo(() => {
     const raceId = get(dynamicFieldsObj, "content.fields.value.fields.race");
     if (raceId !== undefined) {
-      return ERace[raceId];
+      if (typeof raceId === "number" && raceId in ERace) {
+        return ERace[raceId];
+      }
+      return undefined;
     }
   }, [dynamicFieldsObj]);
   const size = useMemo(() => {
@@ -105,7 +108,7 @@ export function BasicAttr(props: IBasicAttrProps) {
       title="Basic Attributes"
       data={{
         Name: get(suiObj, "display.data.name"),
-        "Serial Number": get(suiObj, "content.fields.serial_number"),
+        "Serial Number": String(get(suiObj, "content.fields.serial_number")),
         Size: size,
         Race: race,
         Experience: exp,

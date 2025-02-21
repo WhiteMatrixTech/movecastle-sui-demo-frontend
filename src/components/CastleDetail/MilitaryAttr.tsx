@@ -35,9 +35,11 @@ export function MilitaryAttr(props: IMilitaryAttrProps) {
           dynamicFieldsObj,
           "content.fields.value.fields.millitary.fields.defense_power"
         )}`,
-        Soldiers: get(
-          dynamicFieldsObj,
-          "content.fields.value.fields.millitary.fields.soldiers"
+        Soldiers: String(
+          get(
+            dynamicFieldsObj,
+            "content.fields.value.fields.millitary.fields.soldiers"
+          )
         ),
         "Total Attack Power / Defence Power": `${get(
           dynamicFieldsObj,

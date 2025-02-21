@@ -36,7 +36,7 @@ export function BattleResultModal(props: IBattleResultModalProps) {
     suiClient
       .getObject({ id: oppoCastleObjId, options: { showContent: true } })
       .then((v) => {
-        const name = get(v.data, "content.fields.name");
+        const name = String(get(v.data, "content.fields.name"));
         name && setOppoCastleName(name);
       })
       .catch(console.error);

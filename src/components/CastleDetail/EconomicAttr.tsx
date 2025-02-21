@@ -32,11 +32,11 @@ export function EconomicAttr(props: IEconomicAttrProps) {
 
   const buffs = useMemo(() => {
     return (
-      get(
+      (get(
         dynamicFieldsObj,
         "content.fields.value.fields.economy.fields.battle_buff"
-      ) || []
-    ).map((item) => (item as { fields: IBattleBuff }).fields);
+      ) as unknown as { fields: IBattleBuff }[]) || []
+    ).map((item) => item.fields);
   }, [dynamicFieldsObj]);
 
   const [currentTime, setCurrentTime] = useState<number>(0);
@@ -78,13 +78,17 @@ export function EconomicAttr(props: IEconomicAttrProps) {
     <AttrCard
       title="Economic Attributes"
       data={{
-        Treasury: get(
-          dynamicFieldsObj,
-          "content.fields.value.fields.economy.fields.treasury"
+        Treasury: String(
+          get(
+            dynamicFieldsObj,
+            "content.fields.value.fields.economy.fields.treasury"
+          )
         ),
-        "Base Economic Power": get(
-          dynamicFieldsObj,
-          "content.fields.value.fields.economy.fields.base_power"
+        "Base Economic Power": String(
+          get(
+            dynamicFieldsObj,
+            "content.fields.value.fields.economy.fields.base_power"
+          )
         ),
         "Bonus From Soldiers": soldiersBonus || "None",
         "Battle Reparations": (
